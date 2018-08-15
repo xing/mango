@@ -16,11 +16,11 @@
 default_platform(:android)
 
 platform :android do
-  desc "Run unit tests using the emulator_docker plugin"
+  desc 'Run unit tests using the mango plugin'
   lane :unit_tests do
-    emulator_docker(
-      docker_image: "thyrlian/android-sdk:latest",
-      android_task: "./gradlew testDebug",
+    run_dockerized_task(
+      docker_image: 'thyrlian/android-sdk:latest',
+      android_task: './gradlew testDebug',
       is_running_on_emulator: false,
       docker_registry_login: "docker login -u='mobile-releases+mobile_jenkins' -p='BFWIPM4WPR3O4OX4JRK1T0Q7FHLUN0498DSP8F3SHDCPCI4T06P1NBWT0E02X249' quay.dc.xing.com",
       pull_latest_image: true

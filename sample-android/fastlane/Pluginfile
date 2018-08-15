@@ -2,4 +2,4 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-emulator_docker', path: '../..'
+gem 'fastlane-plugin-mango', path: '../..'

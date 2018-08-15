@@ -20,7 +20,7 @@ or alternatively using `brew cask install fastlane`
 ```
 fastlane android unit_tests
 ```
-Run unit tests using the emulator_docker plugin
+Run unit tests using the mango plugin
 
 ----
 

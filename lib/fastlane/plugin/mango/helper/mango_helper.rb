@@ -5,7 +5,7 @@ require 'os'
 
 module Fastlane
   module Helper
-    class EmulatorDockerHelper
+    class MangoHelper
       attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator
 
       def initialize(params)
@@ -53,7 +53,7 @@ module Fastlane
         begin
           wait_for_healthy_container false
           check_emulator_connection if is_running_on_emulator
-        rescue
+        rescue StandardError
           UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
           @container.stop
           @container.delete(force: true)
@@ -92,10 +92,10 @@ module Fastlane
 
       # Restarts adb on the separate port and checks if created emulator is connected
       def check_emulator_connection
-        UI.success("Checking if emulator is connected to ADB.")
+        UI.success('Checking if emulator is connected to ADB.')
 
         if emulator_is_healthy?
-          UI.success("Emulator connected successfully")
+          UI.success('Emulator connected successfully')
         else
           raise "Something went wrong. Newly created device couldn't connect to the adb"
         end
@@ -116,7 +116,7 @@ module Fastlane
         begin
           container = create_container_call
           @container_name = container unless container_name
-        rescue
+        rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           print_cpu_load
           `docker stop #{container_name}` if container_name
@@ -178,7 +178,7 @@ module Fastlane
         end
 
         if ports_open?('0.0.0.0', [@no_vnc_port])
-          UI.important("Something went wrong. One of the required ports is still busy")
+          UI.important('Something went wrong. One of the required ports is still busy')
           sleep @sleep_interval
           `docker stop #{container_name}` if container_name
           `docker rm #{container_name}` if container_name
@@ -204,7 +204,7 @@ module Fastlane
         all_containers = Docker::Container.all(all: true)
 
         all_containers.each do |container|
-          if container.info["Names"].first[1..-1] == container_name
+          if container.info['Names'].first[1..-1] == container_name
             @container = container
             return true
           end
@@ -214,31 +214,31 @@ module Fastlane
 
       # Checks if container status is 'healthy'
       def container_is_healthy?
-        if @container.json["State"]["Health"]
-          @container.json["State"]["Health"]["Status"] == 'healthy'
+        if @container.json['State']['Health']
+          @container.json['State']['Health']['Status'] == 'healthy'
         else
-          @container.json["State"]["Status"] == 'running'
+          @container.json['State']['Status'] == 'running'
         end
       end
 
       # Waits until container is healthy using specified timeout
       def wait_for_healthy_container(will_exit = true)
-        UI.important("Waiting for Container to be in the Healthy state.")
+        UI.important('Waiting for Container to be in the Healthy state.')
 
         number_of_tries = timeout / sleep_interval
         number_of_tries.times do
           sleep sleep_interval / 2
           if container_is_healthy?
-            UI.success("Your container is ready to work")
+            UI.success('Your container is ready to work')
             return true
           end
-          UI.important("Container status: #{@container.json['State']["Status"]}")
+          UI.important("Container status: #{@container.json['State']['Status']}")
           sleep sleep_interval
         end
-        UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']["Status"]}'")
+        UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']['Status']}'")
         # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
         exit 2 if will_exit
-        raise "Fail"
+        raise 'Fail'
       end
 
       # Checks if port is already open
@@ -302,7 +302,7 @@ module Fastlane
 
       def disconnect_network_bridge
         `docker network disconnect -f bridge #{container_name}`
-      rescue
+      rescue StandardError
         # Do nothing if the network bridge is already gone
       end
     end

@@ -1,10 +1,10 @@
 module Fastlane
   module Actions
-    class EmulatorDockerAction < Action
+    class RunDockerizedTaskAction < Action
       def self.run(params)
-        UI.important("The emulator_docker plugin is working!")
+        UI.important("The mango plugin is working!")
         emulator_name = params[:emulator_name]
-        docker_emulator = Fastlane::Helper::EmulatorDockerHelper.new(params)
+        docker_emulator = Fastlane::Helper::MangoHelper.new(params)
         docker_emulator.setup_container
 
         failure_buffer_timeout = 5
@@ -30,11 +30,11 @@ module Fastlane
       end
 
       def self.description
-        "This plugin handles Android multiple emulator using docker images"
+        "Action that runs Android tasks on a specified Docker image"
       end
 
       def self.authors
-        ["Serghei Moret"]
+        ["Serghei Moret", "Daniel Hartwich"]
       end
 
       def self.return_value
@@ -47,7 +47,7 @@ module Fastlane
 
       def self.details
         # Optional:
-        "TBD"
+        ""
       end
 
       def self.available_options

@@ -1,9 +1,9 @@
 
-# emulator_docker plugin
+# mango plugin
 
-[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-emulator_docker)
+[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-mango)
 
-A fastlane plugin that runs Android tasks on a specified [docker](https://www.docker.com/) image
+A fastlane plugin that runs Android tasks on a specified [Docker](https://www.docker.com/) image
 
 Running Android tests, especially [Espresso](https://developer.android.com/training/testing/espresso/) on a continuous integration environment like [Jenkins](https://jenkins.io/) can be a hassle. You need to boot, manage and destroy an [Android Virtual Device (AVD)](https://developer.android.com/studio/run/managing-avds) during the test run. This is why we, the mobile releases team at [XING](https://www.xing/com), built this plugin. It spins up a specified [Docker](https://www.docker.com/) image and runs a given task on it.
 
@@ -14,21 +14,21 @@ Documentation on how to set it up properly on a Linux (ubuntu) machine can be fo
 
 ## Getting Started
 
-This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-emulator_docker`, add it to your project by running:
+This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-mango`, add it to your project by running:
 
 ```bash
-fastlane add_plugin emulator_docker
+fastlane add_plugin mango
 ```
 
 ## Usage
 
-After installing this plugin you have access to one additional action (`emulator_docker`) in your `Fastfile`.
+After installing this plugin you have access to one additional action (`mango`) in your `Fastfile`.
 
 So a lane in your `Fastfile` could look similar to this:
 ```ruby
 desc "Run espresso tests on docker images"
   lane :Espresso_Tests do |options|
-     emulator_docker(
+     mango(
        container_name: "espresso_container",
        docker_image: "thyrlian/android-sdk:latest",
        container_timeout: 120,
@@ -43,7 +43,7 @@ Now you can call this new lane by calling `bundle exec fastlane Espresso_Tests`.
 The Plugin will start up the given `docker_image`, execute the given `android_task` and afterwards execute the `post_actions`.
 
 ## Configuration options
-The `emulator_docker` action has plenty of options to configure it.
+The `mango` action has plenty of options to configure it.
 
 | Option | Description | Default value | Optional | Type |
 | - |:-|-:| :-:| -:|
