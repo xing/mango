@@ -232,7 +232,13 @@ module Fastlane
             UI.success('Your container is ready to work')
             return true
           end
-          UI.important("Container status: #{@container.json['State']['Status']}")
+          
+          if @container.json['State']['Health']
+            UI.important("Container status: #{@container.json['State']['Health']['Status']}")
+          else
+            UI.important("Container status: #{@container.json['State']['Status']}")
+          end
+
           sleep sleep_interval
         end
         UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']['Status']}'")
