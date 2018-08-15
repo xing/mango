@@ -1,5 +1,5 @@
 lane :test do
-  mango(
+  run_dockerized_task(
     is_running_on_emulator: false
   )
 end

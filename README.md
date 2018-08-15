@@ -7,10 +7,14 @@ A fastlane plugin that runs Android tasks on a specified [Docker](https://www.do
 
 Running Android tests, especially [Espresso](https://developer.android.com/training/testing/espresso/) on a continuous integration environment like [Jenkins](https://jenkins.io/) can be a hassle. You need to boot, manage and destroy an [Android Virtual Device (AVD)](https://developer.android.com/studio/run/managing-avds) during the test run. This is why we, the mobile releases team at [XING](https://www.xing/com), built this plugin. It spins up a specified [Docker](https://www.docker.com/) image and runs a given task on it.
 
+Another requirement we had was to run on a clean environment, which is why Mango also helps us to run our unit test and more. For an example check out the [example `Fastfile`](sample-android/fastlane/Fastfile)
+
 ## Prerequisites
 
 In order to use this plugin you will need to to have [Docker](https://www.docker.com/) installed on the machine you are using.
 Documentation on how to set it up properly on a Linux (ubuntu) machine can be found [here](docs/docker-linux.md).
+
+If you need an Android Virtual Device (AVD) to run your tests (for example Espresso, Calabash or Appium), it's necessary to check that your CPU supports kvm virtualisation. We already experienced, that it doesn't fully work on macOS and are using Linux for that.
 
 ## Getting Started
 
@@ -42,6 +46,8 @@ Now you can call this new lane by calling `bundle exec fastlane Espresso_Tests`.
 
 The Plugin will start up the given `docker_image`, execute the given `android_task` and afterwards execute the `post_actions`.
 
+Of
+
 ## Configuration options
 The `mango` action has plenty of options to configure it.
 
@@ -61,6 +67,9 @@ The `mango` action has plenty of options to configure it.
 | `bundle_install` | Defines if the Android task must execute `bundle install` before running a build. This is useful if you want to execute non-gradle tasks. Like [Calabash](https://github.com/calabash/calabash-android), where you need to update/install your [Ruby](https://www.ruby-lang.org) dependencies. | `true` | ✅ | `Boolean` |
 | `is_running_on_emulator` | Define if container boots up an emulator instance inside of it. This will trigger configuration of noVNC, assign necessary ports etc. | `true` | ✅ | `Boolean` |
 | `post_actions` | Actions that will be executed after the main command has been executed. | - | ✅ | `String` |
+| `pre_action` | Actions that will be executed before the docker image gets pulled | - | ✅ | `String` |
+| `docker_registry_login` | Command to authenticate yourself in a custom Docker registry | - | ✅ | `String` |
+| `pull_latest_image` | Defines if you want to pull the `:latest` tag of the given `docker_image` | `false` | ✅ | `Boolean` |
 
 ## Contributing
 
