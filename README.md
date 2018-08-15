@@ -5,6 +5,8 @@
 
 A fastlane plugin that runs Android tasks on a specified [Docker](https://www.docker.com/) image
 
+<img src="assets/mango_logo.png" alt="Mango Logo" width="256px" height="256px"/>
+
 Running Android tests, especially [Espresso](https://developer.android.com/training/testing/espresso/) on a continuous integration environment like [Jenkins](https://jenkins.io/) can be a hassle. You need to boot, manage and destroy an [Android Virtual Device (AVD)](https://developer.android.com/studio/run/managing-avds) during the test run. This is why we, the mobile releases team at [XING](https://www.xing/com), built this plugin. It spins up a specified [Docker](https://www.docker.com/) image and runs a given task on it.
 
 Another requirement we had was to run on a clean environment, which is why Mango also helps us to run our unit test and more. For an example check out the [example `Fastfile`](sample-android/fastlane/Fastfile)
