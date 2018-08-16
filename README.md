@@ -1,7 +1,8 @@
 
 # Mango - Fastlane plugin
 
-[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-mango)
+[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-mango) [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/xing/mango/blob/master/LICENSE)
+[![Gem](https://img.shields.io/gem/v/fastlane-plugin-mango.svg?style=flat)](http://rubygems.org/gems/fastlane-plugin-mango)
 
 A fastlane plugin that runs Android tasks on a specified [Docker](https://www.docker.com/) image
 
@@ -16,7 +17,7 @@ Another requirement we had was to run on a clean environment, which is why Mango
 In order to use this plugin you will need to to have [Docker](https://www.docker.com/) installed on the machine you are using.
 Documentation on how to set it up properly on a Linux (ubuntu) machine can be found [here](docs/docker-linux.md).
 
-If you need an Android Virtual Device (AVD) to run your tests (for example Espresso, Calabash or Appium), it's necessary to check that your CPU supports kvm virtualisation. We already experienced, that it doesn't fully work on macOS and are using Linux for that.
+If you need an Android Virtual Device (AVD) to run your tests (for example Espresso, Calabash or Appium), it's necessary to check that your CPU supports kvm virtualisation. We already experienced that it doesn't fully work on macOS and are using Linux for that.
 
 ## Getting Started
 
@@ -47,8 +48,6 @@ desc "Run espresso tests on docker images"
 Now you can call this new lane by calling `bundle exec fastlane Espresso_Tests`.
 
 The Plugin will start up the given `docker_image`, execute the given `android_task` and afterwards execute the `post_actions`.
-
-Of
 
 ## Configuration options
 The `mango` action has plenty of options to configure it.
