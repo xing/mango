@@ -63,7 +63,9 @@ module Fastlane
           check_emulator_connection if is_running_on_emulator
         end
 
-        raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..' unless kvm_enabled?
+        if is_running_on_emulator && !kvm_enabled?
+          raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
+        end
       end
 
       def kvm_enabled?
