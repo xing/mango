@@ -1,0 +1,15 @@
+version: 2
+jobs:
+ build:
+   machine: true
+   steps:
+     - checkout
+     - run:
+          name: Set Ruby Version
+          command:  echo "ruby-2.4" > ~/.ruby-version
+     - run:
+          name: Bundler install
+          command: cd sample-android && bundle install   
+     - run: 
+          name: Run unit tests on sample app
+          command: cd sample-android && bundle exec fastlane android unit_tests
