@@ -7,8 +7,11 @@ jobs:
     steps:
       - checkout
       - run:
+        name: Set Ruby Version
+        command:  echo "ruby-2.4" > ~/.ruby-version
+      - run:
           name: Bundler install
-          command: bundle install --path vendor/bundle      
+          command: bundle install      
       - run:
           name: Run unit tests
           command: cd sample-android && bundle exec fastlane android unit_tests
