@@ -50,6 +50,10 @@ module Fastlane
 
         create_container
 
+        if is_running_on_emulator && !kvm_enabled?
+          raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
+        end
+        
         begin
           wait_for_healthy_container false
           check_emulator_connection if is_running_on_emulator
@@ -61,10 +65,6 @@ module Fastlane
           create_container
           wait_for_healthy_container
           check_emulator_connection if is_running_on_emulator
-        end
-
-        if is_running_on_emulator && !kvm_enabled?
-          raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
         end
       end
 
