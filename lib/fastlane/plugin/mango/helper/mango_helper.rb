@@ -1,7 +1,7 @@
 require 'docker'
-require 'socket'
 require 'timeout'
 require 'os'
+require 'net/http'
 
 module Fastlane
   module Helper
@@ -177,8 +177,8 @@ module Fastlane
           vnc_allocated_container.stop
         end
 
-        if ports_open?('0.0.0.0', [@no_vnc_port])
-          UI.important('Something went wrong. One of the required ports is still busy')
+        if port_open?('0.0.0.0', @no_vnc_port)
+          UI.important('Something went wrong. VNC port is still busy')
           sleep @sleep_interval
           `docker stop #{container_name}` if container_name
           `docker rm #{container_name}` if container_name
@@ -247,22 +247,12 @@ module Fastlane
         raise 'Fail'
       end
 
-      # Checks if port is already open
-      def ports_open?(ip, ports)
-        raise "'ports' should be an array" unless ports.is_a? Array
-        ports.each do |port|
-          begin
-            Timeout.timeout(1) do
-              begin
-                s = TCPSocket.new(ip, port)
-                s.close
-                return true
-              rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-              end
-            end
-          rescue Timeout::Error
-          end
-        end
+      # Checks if port is already openZ
+      def port_open?(server, port)
+        http = Net::HTTP.start(server, port, open_timeout: 5, read_timeout: 5)
+        response = http.head('/')
+        response.code == '200'
+      rescue Timeout::Error, SocketError
         false
       end
 
