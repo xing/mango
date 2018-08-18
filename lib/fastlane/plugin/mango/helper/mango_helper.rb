@@ -252,7 +252,7 @@ module Fastlane
         http = Net::HTTP.start(server, port, open_timeout: 5, read_timeout: 5)
         response = http.head('/')
         response.code == '200'
-      rescue Timeout::Error, SocketError
+      rescue Timeout::Error, SocketError, Errno::ECONNREFUSED
         false
       end
 
