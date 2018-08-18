@@ -19,4 +19,4 @@ jobs:
       - checkout
       - run:
           name: Run unit tests
-          command: cd sample-android && bundle exec fastlane android unit_tests
+          command: cd sample-android && bundle && bundle exec fastlane android unit_tests
