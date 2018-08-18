@@ -1,0 +1,7 @@
+test_unit:
+  <<: *android_config
+  steps:
+    - checkout
+    - run:
+        name: Run unit tests
+        command: cd sample-android && bundle exec fastlane android unit_tests
