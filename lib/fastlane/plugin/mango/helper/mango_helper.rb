@@ -62,6 +62,12 @@ module Fastlane
           wait_for_healthy_container
           check_emulator_connection if is_running_on_emulator
         end
+
+        raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..' unless kvm_enabled?
+      end
+
+      def kvm_enabled?
+        docker_exec('kvm-ok').include?('KVM acceleration can be used')
       end
 
       # Stops and remove container
