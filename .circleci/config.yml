@@ -1,17 +1,13 @@
 version: 2
 jobs:
-  build:
-    macos:
-      xcode: "9.2.0"
-    shell: /bin/bash --login -eo pipefail
-    steps:
-      - checkout
-      - run:
+ build:
+   machine: true
+   steps:
+     - checkout
+     - run:
           name: Set Ruby Version
           command:  echo "ruby-2.4" > ~/.ruby-version
-      - run:
+     - run:
           name: Bundler install
-          command: bundle install      
-      - run:
-          name: Run unit tests
-          command: cd sample-android && bundle exec fastlane android unit_tests
+          command: bundle install   
+     - run: cd sample-android && bundle exec fastlane android unit_tests
