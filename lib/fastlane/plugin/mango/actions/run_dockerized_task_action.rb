@@ -3,9 +3,8 @@ module Fastlane
     class RunDockerizedTaskAction < Action
       def self.run(params)
         UI.important("The mango plugin is working!")
-        emulator_name = params[:emulator_name]
-        docker_emulator = Fastlane::Helper::MangoHelper.new(params)
-        docker_emulator.setup_container
+        mango_helper = Fastlane::Helper::MangoHelper.new(params)
+        mango_helper.setup_container
 
         failure_buffer_timeout = 5
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
@@ -16,17 +15,17 @@ module Fastlane
           UI.success("Starting Android Task.")
           bundle_install = params[:bundle_install] ? '&& bundle install ' : ''
 
-          docker_emulator.docker_exec("cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
+          mango_helper.docker_exec("cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
         end
 
       ensure
         post_actions = params[:post_actions]
         if post_actions
-          docker_emulator&.docker_exec("cd #{workspace_dir} && #{post_actions}")
+          mango_helper&.docker_exec("cd #{workspace_dir} && #{post_actions}")
         end
 
-        UI.important("Cleaning up #{emulator_name} container")
-        docker_emulator.clean_container if docker_emulator.instance_variable_get('@container')
+        UI.important("Cleaning up #{params[:emulator_name]} container")
+        mango_helper.clean_container if mango_helper.instance_variable_get('@container')
       end
 
       def self.description
@@ -115,7 +114,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :workspace_dir,
                                        env_name: "WORKSPACE_DIR",
                                        default_value: '/root/tests/',
-                                       description: "Path to the workspace to execute commands",
+                                       description: "Path to the workspace to execute commands. Needed when your tests are inside the mounted repo (e.g. if your tests are in /appiumTests/ folder you will use /root/tests/appiumTests)",
                                        optional: true,
                                        type: String),
 
