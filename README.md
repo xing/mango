@@ -31,16 +31,33 @@ fastlane add_plugin mango
 
 After installing this plugin you have access to one additional action (`mango`) in your `Fastfile`.
 
-So a lane in your `Fastfile` could look similar to this:
+So a lane in your `Fastfile` could look similar to this for Espresso tests:
 ```ruby
 desc "Run espresso tests on docker images"
-  lane :Espresso_Tests do |options|
-     mango(
+  lane :Espresso_Tests do
+     run_dockerized_task(
        container_name: "espresso_container",
-       docker_image: "thyrlian/android-sdk:latest",
+       port_factor: options[:port_factor],
+       docker_image: "joesss/mango-docker:latest",
        container_timeout: 120,
        android_task: "./gradlew connectedAndroidTest",
-       post_actions: "adb logcat -d > logcat.txt"          
+       post_actions: "adb logcat -d > logcat.txt",
+       pull_latest_image: true          
+     )
+   end
+```
+
+or to this for unit tests or other gradle tasks:
+```ruby
+desc "Run unit tests on docker images"
+  lane :Unit_Tests do
+     run_dockerized_task(
+       container_name: "unit_tests_container",
+       port_factor: options[:port_factor],
+       docker_image: "joesss/mango-base:latest",
+       is_running_on_emulator: false,
+       android_task: "./gradlew testDebug",
+       pull_latest_image: true         
      )
    end
 ```

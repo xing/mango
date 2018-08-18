@@ -114,7 +114,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :workspace_dir,
                                        env_name: "WORKSPACE_DIR",
                                        default_value: '/root/tests/',
-                                       description: "Path to the workspace to execute commands. Needed when your tests are inside the mounted repo (e.g. if your tests are in /appiumTests/ folder you will use /root/tests/appiumTests)",
+                                       description: "Path to the workspace to execute commands. If you want to execute your `android_task` from a different directory you have to specify `workspace_dir`.",
                                        optional: true,
                                        type: String),
 

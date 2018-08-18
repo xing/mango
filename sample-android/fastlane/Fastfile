@@ -19,7 +19,7 @@ platform :android do
   desc 'Run unit tests using the mango plugin'
   lane :unit_tests do
     run_dockerized_task(
-      docker_image: 'thyrlian/android-sdk:latest',
+      docker_image: 'joesss/mango-base:latest',
       android_task: './gradlew testDebug',
       is_running_on_emulator: false,
       pull_latest_image: true
