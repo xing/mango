@@ -20,7 +20,7 @@ module Fastlane
 
       ensure
         post_actions = params[:post_actions]
-        if post_actions
+        if post_actions && !mango_helper.kvm_disabled?
           mango_helper&.docker_exec("cd #{workspace_dir} && #{post_actions}")
         end
 
