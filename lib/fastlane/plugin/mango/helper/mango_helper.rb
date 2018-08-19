@@ -50,7 +50,7 @@ module Fastlane
 
         create_container
 
-        if is_running_on_emulator && !kvm_enabled?
+        if is_running_on_emulator && kvm_disabled?
           raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
         end
         
@@ -68,8 +68,8 @@ module Fastlane
         end
       end
 
-      def kvm_enabled?
-        docker_exec('kvm-ok').include?('KVM acceleration can be used')
+      def kvm_disabled?
+        docker_exec('kvm-ok').include?('KVM acceleration can NOT be used')
       end
 
       # Stops and remove container
