@@ -13,6 +13,3 @@ jobs:
      - run:
           name: Run unit tests on sample app
           command: cd sample-android && bundle exec fastlane android unit_tests
-     - run:
-         name: Run espresso tests on sample app
-         command: cd sample-android && bundle exec fastlane android espresso_tests
