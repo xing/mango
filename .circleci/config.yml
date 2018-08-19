@@ -10,6 +10,6 @@ jobs:
      - run:
           name: Bundler install
           command: cd sample-android && bundle install   
-     - run: 
+     - run:
           name: Run unit tests on sample app
           command: cd sample-android && bundle exec fastlane android unit_tests
