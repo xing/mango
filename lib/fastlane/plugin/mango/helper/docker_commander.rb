@@ -27,11 +27,17 @@ module Fastlane
       end
 
       def stop_container(container_name:)
-        `docker stop #{container_name}` if container_name
+        Actions.sh("docker stop #{container_name}") if container_name
       end
 
       def delete_container(container_name:)
-        `docker rm #{container_name}` if container_name
+        Actions.sh("docker rm #{container_name}") if container_name
+      end
+
+      def disconnect_network_bridge(container_name: container_name)
+        Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
+      rescue StandardError
+        # Do nothing if the network bridge is already gone
       end
 
       private
