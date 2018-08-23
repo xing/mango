@@ -9,7 +9,10 @@ jobs:
           command:  echo "ruby-2.4" > ~/.ruby-version
      - run:
           name: Bundler install
-          command: cd sample-android && bundle install   
+          command: cd sample-android && bundle install  
+     - run:
+          name: Run Rake (ruby unit tests and rubocop)
+          command: rake
      - run:
           name: Run unit tests on sample app
           command: cd sample-android && bundle exec fastlane android unit_tests
