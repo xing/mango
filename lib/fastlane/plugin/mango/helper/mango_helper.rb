@@ -50,7 +50,7 @@ module Fastlane
 
         # Make sure that network bridge for the current container is not already used
         @docker_commander.disconnect_network_bridge(container_name: container_name)
-        
+
         create_container
 
         if is_running_on_emulator && kvm_disabled?
