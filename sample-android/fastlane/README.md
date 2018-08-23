@@ -21,6 +21,11 @@ or alternatively using `brew cask install fastlane`
 fastlane android unit_tests
 ```
 Run unit tests using the mango plugin
+### android espresso_tests
+```
+fastlane android espresso_tests
+```
+Run espresso tests on docker images
 
 ----
 
