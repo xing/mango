@@ -3,16 +3,13 @@ require 'os'
 
 module Fastlane
   module Helper
-    class DockerCommander
+    module DockerCommander
 
-      def initialize
-      end
-
-      def pull_image(docker_image_name:)
+      def self.pull_image(docker_image_name:)
         Actions.sh("docker pull #{docker_image_name}")
       end
 
-      def start_container(emulator_args:, docker_name:, docker_image:)
+      def self.start_container(emulator_args:, docker_name:, docker_image:)
         docker_name = if docker_name
                         "--name #{docker_name}"
                       else
@@ -25,27 +22,19 @@ module Fastlane
         output = Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
       end
 
-      def stop_container(container_name:)
+      def self.stop_container(container_name:)
         Actions.sh("docker stop #{container_name}") if container_name
       end
 
-      def delete_container(container_name:)
+      def self.delete_container(container_name:)
         Actions.sh("docker rm #{container_name}") if container_name
       end
 
-      def disconnect_network_bridge(container_name: container_name)
+      def self.disconnect_network_bridge(container_name: container_name)
         Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
       rescue StandardError
         # Do nothing if the network bridge is already gone
       end
-
-      private
-
-      # Executes commands inside docker container
-      def docker_exec(command)
-        Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
-      end
-
     end
   end
 end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Fastlane::Helper::DockerCommander do
   before do
-      @docker_commander = Fastlane::Helper::DockerCommander.new
+      @docker_commander = Fastlane::Helper::DockerCommander
   end
 
   describe '#pull_image' do

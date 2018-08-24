@@ -26,7 +26,7 @@ module Fastlane
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
 
-        @docker_commander = DockerCommander.new
+        @docker_commander = DockerCommander
       end
 
       # Setting up the container:
