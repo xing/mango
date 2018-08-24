@@ -2,6 +2,7 @@ require 'docker'
 require 'timeout'
 require 'os'
 require 'net/http'
+require_relative 'docker_commander'
 
 module Fastlane
   module Helper
@@ -24,6 +25,8 @@ module Fastlane
         @pre_action = params[:pre_action]
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
+
+        @docker_commander = DockerCommander
       end
 
       # Setting up the container:
@@ -46,14 +49,14 @@ module Fastlane
         pull_from_registry if @pull_latest_image
 
         # Make sure that network bridge for the current container is not already used
-        disconnect_network_bridge if container_name
+        @docker_commander.disconnect_network_bridge(container_name: container_name)
 
         create_container
 
         if is_running_on_emulator && kvm_disabled?
           raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
         end
-        
+
         begin
           wait_for_healthy_container false
           check_emulator_connection if is_running_on_emulator
@@ -83,6 +86,7 @@ module Fastlane
       end
 
       # Executes commands inside docker container
+      # TODO: REMOVE / MOVE THIS to docker_commander
       def docker_exec(command)
         Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
       end
@@ -131,8 +135,8 @@ module Fastlane
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           print_cpu_load
-          `docker stop #{container_name}` if container_name
-          `docker rm #{container_name}` if container_name
+          @docker_commander.stop_container(container_name: container_name)
+          @docker_commander.delete_container(container_name: container_name)
           sleep @sleep_interval
           container = create_container_call
           @container_name = container unless container_name
@@ -155,19 +159,9 @@ module Fastlane
         # When CPU is under load we cannot create a healthy container
         wait_cpu_to_idle
 
-        docker_name = if container_name
-                        "--name #{container_name}"
-                      else
-                        ''
-                      end
-
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
 
-        # Action.sh returns all output that the command produced but we are only
-        # interested in the last line, since it contains the id of the created container.
-        UI.important("Attaching #{ENV['PWD']} to the docker container")
-        output = Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
-        output.split("\n").last
+        @docker_commander.start_container(emulator_args: emulator_args, docker_name: container_name, docker_image: docker_image)
       end
 
       def execute_pre_action
@@ -178,7 +172,7 @@ module Fastlane
       def pull_from_registry
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
-        Actions.sh("docker pull #{docker_image_name}")
+        @docker_commander.pull_image(docker_image_name: docker_image_name)
       end
 
       # Checks that chosen ports are not already allocated. If they are, it will stop the allocated container
@@ -192,8 +186,8 @@ module Fastlane
         if port_open?('0.0.0.0', @no_vnc_port)
           UI.important('Something went wrong. VNC port is still busy')
           sleep @sleep_interval
-          `docker stop #{container_name}` if container_name
-          `docker rm #{container_name}` if container_name
+          @docker_commander.stop_container(container_name: container_name)
+          @docker_commander.delete_container(container_name: container_name)
         end
       end
 
@@ -244,7 +238,7 @@ module Fastlane
             UI.success('Your container is ready to work')
             return true
           end
-          
+
           if @container.json['State']['Health']
             UI.important("Container status: #{@container.json['State']['Health']['Status']}")
           else

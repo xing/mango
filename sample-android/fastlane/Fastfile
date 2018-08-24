@@ -27,14 +27,14 @@ platform :android do
   end
 
   desc "Run espresso tests on docker images"
-    lane :espresso_tests do
-       run_dockerized_task(
-         container_name: "espresso_container",
-         docker_image: "joesss/mango-docker:latest",
-         container_timeout: 120,
-         android_task: "./gradlew testDebug",
-         post_actions: "adb logcat -d > logcat.txt",
-         pull_latest_image: true
-       )
-     end
+  lane :espresso_tests do
+    run_dockerized_task(
+      container_name: "espresso_container",
+      docker_image: "joesss/mango-docker:latest",
+      container_timeout: 120,
+      android_task: "./gradlew connectedAndroidTest",
+      post_actions: "adb logcat -d > logcat.txt",
+      pull_latest_image: true
+    )
+  end
 end
