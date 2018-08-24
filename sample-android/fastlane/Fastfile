@@ -32,7 +32,7 @@ platform :android do
       container_name: "espresso_container",
       docker_image: "joesss/mango-docker:latest",
       container_timeout: 120,
-      android_task: "./gradlew testDebug",
+      android_task: "./gradlew connectedAndroidTest",
       post_actions: "adb logcat -d > logcat.txt",
       pull_latest_image: true
     )
