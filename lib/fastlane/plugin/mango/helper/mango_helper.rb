@@ -86,6 +86,7 @@ module Fastlane
       end
 
       # Executes commands inside docker container
+      # TODO: REMOVE / MOVE THIS to docker_commander
       def docker_exec(command)
         Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
       end
