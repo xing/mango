@@ -44,12 +44,12 @@ module Fastlane
         Action.sh('docker system prune -f')
       end
 
-      def handle_thin_pool_exceptions(&block)
+      def self.handle_thin_pool_exceptions(&block)
         begin
           block.call
         rescue => exception
-          if exception.contains?('Create more free space in thin pool')
-            self.prune
+          if exception.message =~ /Create more free space in thin pool/
+            prune
             retry
           else
             raise exception
