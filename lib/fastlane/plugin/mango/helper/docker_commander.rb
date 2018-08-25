@@ -6,7 +6,9 @@ module Fastlane
     module DockerCommander
 
       def self.pull_image(docker_image_name:)
-        Actions.sh("docker pull #{docker_image_name}")
+        handle_thin_pool_exceptions do
+          Actions.sh("docker pull #{docker_image_name}")
+        end
       end
 
       def self.start_container(emulator_args:, docker_name:, docker_image:)
@@ -19,8 +21,9 @@ module Fastlane
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
-        output = Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
-        output.split("\n").last
+        handle_thin_pool_exceptions do
+          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
+        end
       end
 
       def self.stop_container(container_name:)
@@ -35,6 +38,23 @@ module Fastlane
         Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
       rescue StandardError
         # Do nothing if the network bridge is already gone
+      end
+
+      def self.prune
+        Action.sh('docker system prune -f')
+      end
+
+      def handle_thin_pool_exceptions(&block)
+        begin
+          block.call
+        rescue => exception
+          if exception.contains?('Create more free space in thin pool')
+            self.prune
+            retry
+          else
+            raise exception
+          end
+        end
       end
     end
   end
