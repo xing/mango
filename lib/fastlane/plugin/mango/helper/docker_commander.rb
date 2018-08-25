@@ -19,8 +19,7 @@ module Fastlane
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
-        output = Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
-        output.split("\n").last
+        Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
       end
 
       def self.stop_container(container_name:)
