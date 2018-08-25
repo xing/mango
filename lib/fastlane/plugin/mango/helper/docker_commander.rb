@@ -47,10 +47,13 @@ module Fastlane
       def self.handle_thin_pool_exception(&block)
         begin
           block.call
-        rescue => exception
+        rescue FastlaneCore::Interface::FastlaneShellError => exception
           if exception.message =~ /Create more free space in thin pool/
-            prune
-            retry
+            retry_counter = retry_counter.to_i + 1
+            if retry_counter < 2
+              prune
+              retry
+            end
           else
             raise exception
           end

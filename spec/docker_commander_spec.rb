@@ -62,4 +62,30 @@ describe Fastlane::Helper::DockerCommander do
     end
   end
 
+  describe '#handle_thin_pool_exception' do
+    it 'Raises when exception message is not related to thin pool' do
+      expect(Fastlane::Actions).to receive(:sh).with('docker pull bla').and_raise(FastlaneCore::Interface::FastlaneShellError, 'some message')
+      expect {
+        @docker_commander.handle_thin_pool_exception do
+          @docker_commander.pull_image(docker_image_name: 'bla')
+        end
+      }.to raise_error(FastlaneCore::Interface::FastlaneShellError, 'some message')
+    end
+
+    it 'Retries the command when the message is related to thin pool' do
+      expect(Fastlane::Actions).to receive(:sh).twice.with('docker pull bla').and_raise(FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...')
+        @docker_commander.handle_thin_pool_exception do
+          @docker_commander.pull_image(docker_image_name: 'bla')
+        end
+    end
+
+    it 'Calls prune just once when the message is related to thin pool' do
+      expect(Fastlane::Actions).to receive(:sh).twice.with('docker pull bla').and_raise(FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...')
+      expect(@docker_commander).to receive(:prune).once
+      @docker_commander.handle_thin_pool_exception do
+        @docker_commander.pull_image(docker_image_name: 'bla')
+      end
+    end
+  end
+
 end
