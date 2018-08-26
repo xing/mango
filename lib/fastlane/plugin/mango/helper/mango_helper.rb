@@ -28,7 +28,7 @@ module Fastlane
         @pull_latest_image = params[:pull_latest_image]
 
         @docker_commander = DockerCommander
-        @emulator_commander = EmulatorCommander
+        @emulator_commander = EmulatorCommander.new(container_name)
       end
 
       # Setting up the container:
@@ -61,7 +61,7 @@ module Fastlane
 
         begin
           wait_for_healthy_container false
-          @emulator_commander.check_emulator_connection(container_name: container_name) if is_running_on_emulator
+          @emulator_commander.check_emulator_connection if is_running_on_emulator
         rescue StandardError
           UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
           @container.stop
@@ -69,12 +69,12 @@ module Fastlane
           sleep @sleep_interval
           create_container
           wait_for_healthy_container
-          @emulator_commander.check_emulator_connection(container_name: container_name) if is_running_on_emulator
+          @emulator_commander.check_emulator_connection if is_running_on_emulator
         end
 
         if is_running_on_emulator
-          @emulator_commander.disable_animations(container_name: container_name)
-          @emulator_commander.increase_logcat_storage(container_name: container_name)
+          @emulator_commander.disable_animations
+          @emulator_commander.increase_logcat_storage
         end
       end
 
@@ -114,7 +114,7 @@ module Fastlane
         print_cpu_load
         begin
           container = create_container_call
-          @container_name = container unless container_name
+          set_container_name(container)
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           print_cpu_load
@@ -122,7 +122,7 @@ module Fastlane
           @docker_commander.delete_container(container_name: container_name)
           sleep @sleep_interval
           container = create_container_call
-          @container_name = container unless container_name
+          set_container_name(container)
         end
         get_container_instance(container)
       end
@@ -273,6 +273,13 @@ module Fastlane
         raise "CPU was overloaded. Couldn't start emulator"
       end
 
+      # if we do not have container name, we cane use container ID that we got from create call
+      def set_container_name(container)
+        unless container_name
+          @container_name = container
+          @emulator_commander.container_name = container_name
+        end
+      end
     end
   end
 end
