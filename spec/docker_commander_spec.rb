@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe Fastlane::Helper::DockerCommander do
   before do
-      @docker_commander = Fastlane::Helper::DockerCommander
+      @docker_commander = Fastlane::Helper::DockerCommander.new('abcdef123')
+      @docker_commander_nil_value = Fastlane::Helper::DockerCommander.new(nil)
   end
 
   describe '#pull_image' do
@@ -15,62 +16,64 @@ describe Fastlane::Helper::DockerCommander do
   describe '#stop_container' do
     it 'stops the container if the container name is available' do
         expect(Fastlane::Actions).to receive(:sh).with('docker stop abcdef123')
-        @docker_commander.stop_container(container_name: "abcdef123")
+        @docker_commander.stop_container
     end
 
     it 'doesnt stop the container if no container name is available' do
       expect(Fastlane::Actions).not_to receive(:sh)
-      @docker_commander.stop_container(container_name: nil)
+      @docker_commander_nil_value.stop_container
     end
   end
 
   describe '#delete_container' do
     it 'deletes the container if the container name is available' do
         expect(Fastlane::Actions).to receive(:sh).with('docker rm abcdef123')
-        @docker_commander.delete_container(container_name: "abcdef123")
+        @docker_commander.delete_container
     end
 
     it 'doesnt delete the container if no container name is available' do
       expect(Fastlane::Actions).not_to receive(:sh)
-      @docker_commander.delete_container(container_name: nil)
+      @docker_commander_nil_value.delete_container
     end
   end
 
   describe '#disconnect_network_bridge' do
     it 'disconnects the network_bridge if the container name is available' do
         expect(Fastlane::Actions).to receive(:sh).with('docker network disconnect -f bridge abcdef123')
-        @docker_commander.disconnect_network_bridge(container_name: "abcdef123")
+        @docker_commander.disconnect_network_bridge
     end
 
     it 'doesnt disconnect the network_bridge if no container name is available' do
       expect(Fastlane::Actions).not_to receive(:sh)
-      @docker_commander.disconnect_network_bridge(container_name: nil)
+      @docker_commander_nil_value.disconnect_network_bridge
     end
   end
 
   describe '#start_container' do
     it 'starts the container with a specified name' do
-      expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d  --name my-test-image test-image').and_return("abdef\n")
-      container_id = @docker_commander.start_container(emulator_args: nil, docker_name: "my-test-image", docker_image: "test-image")
+      expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d  --name abcdef123 test-image').and_return("abdef\n")
+      container_id = @docker_commander.start_container(emulator_args: nil, docker_image: "test-image")
       expect(container_id).to eql "abdef"
     end
 
     it 'starts the container without the name parameter' do
       expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d   test-image').and_return("abd\n")
-      container_id = @docker_commander.start_container(emulator_args: nil, docker_name: nil, docker_image: "test-image")
+      container_id = @docker_commander_nil_value.start_container(emulator_args: nil, docker_image: "test-image")
       expect(container_id).to eql "abd"
     end
   end
 
   describe '#docker_exec' do
     it 'executes commands inside docker if container name is specified' do
-      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i my_container bash -l -c \"do stuff\"")
-      @docker_commander.docker_exec(command: 'do stuff', container_name: 'my_container')
+      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i abcdef123 bash -l -c \"do stuff\"")
+      @docker_commander.docker_exec(command: 'do stuff')
     end
 
-    it 'does not execute the command if the container name is not specified' do
+    it 'raises if the container name is not specified' do
       expect(Fastlane::Actions).not_to receive(:sh)
-      @docker_commander.docker_exec(command: 'do stuff', container_name: nil)
+      expect {
+        @docker_commander_nil_value.docker_exec(command: 'do stuff')
+      }.to raise_exception('Cannot execute docker command because the container name is unknown')
     end
   end
 end
