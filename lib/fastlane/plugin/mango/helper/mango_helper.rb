@@ -3,6 +3,7 @@ require 'timeout'
 require 'os'
 require 'net/http'
 require_relative 'docker_commander'
+require_relative 'emulator_commander'
 
 module Fastlane
   module Helper
@@ -27,6 +28,7 @@ module Fastlane
         @pull_latest_image = params[:pull_latest_image]
 
         @docker_commander = DockerCommander
+        @emulator_commander = EmulatorCommander
       end
 
       # Setting up the container:
@@ -59,7 +61,7 @@ module Fastlane
 
         begin
           wait_for_healthy_container false
-          check_emulator_connection if is_running_on_emulator
+          @emulator_commander.check_emulator_connection(container_name: container_name) if is_running_on_emulator
         rescue StandardError
           UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
           @container.stop
@@ -67,7 +69,12 @@ module Fastlane
           sleep @sleep_interval
           create_container
           wait_for_healthy_container
-          check_emulator_connection if is_running_on_emulator
+          @emulator_commander.check_emulator_connection(container_name: container_name) if is_running_on_emulator
+        end
+
+        if is_running_on_emulator
+          @emulator_commander.disable_animations(container_name: container_name)
+          @emulator_commander.increase_logcat_storage(container_name: container_name)
         end
       end
 
@@ -85,12 +92,6 @@ module Fastlane
         @container.delete(force: true)
       end
 
-      # Executes commands inside docker container
-      # TODO: REMOVE / MOVE THIS to docker_commander
-      def docker_exec(command)
-        Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
-      end
-
       private
 
       # Sets path to adb
@@ -104,25 +105,6 @@ module Fastlane
         @host_ip_address = `hostname -I | head -n1 | awk '{print $1;}'`.delete!("\n")
         UI.success("Port: #{@no_vnc_port} was chosen for VNC")
         UI.success("Link to VNC: http://#{@host_ip_address}:#{@no_vnc_port}")
-      end
-
-      # Restarts adb on the separate port and checks if created emulator is connected
-      def check_emulator_connection
-        UI.success('Checking if emulator is connected to ADB.')
-
-        if emulator_is_healthy?
-          UI.success('Emulator connected successfully')
-        else
-          raise "Something went wrong. Newly created device couldn't connect to the adb"
-        end
-
-        disable_animations
-        increase_logcat_storage
-      end
-
-      def emulator_is_healthy?
-        list_devices = docker_exec('adb devices')
-        list_devices.include? "\tdevice"
       end
 
       # Creates new container using params
@@ -290,23 +272,6 @@ module Fastlane
         raise "CPU was overloaded. Couldn't start emulator"
       end
 
-      # Disables animation for faster and stable testing
-      def disable_animations
-        docker_exec('adb shell settings put global window_animation_scale 0.0')
-        docker_exec('adb shell settings put global transition_animation_scale 0.0')
-        docker_exec('adb shell settings put global animator_duration_scale 0.0')
-      end
-
-      # Increases logcat storage
-      def increase_logcat_storage
-        docker_exec('adb logcat -G 16m')
-      end
-
-      def disconnect_network_bridge
-        `docker network disconnect -f bridge #{container_name}`
-      rescue StandardError
-        # Do nothing if the network bridge is already gone
-      end
     end
   end
 end
