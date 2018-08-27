@@ -59,17 +59,30 @@ module Fastlane
           raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
         end
 
-        begin
-          wait_for_healthy_container false
-          @emulator_commander.check_emulator_connection if is_running_on_emulator
-        rescue StandardError
+        container_state = wait_for_healthy_container
+
+        if is_running_on_emulator
+          connection_state = @emulator_commander.check_connection
+          container_state = connection_state && connection_state
+        end
+
+        unless container_state
           UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
           @container.stop
           @container.delete(force: true)
           sleep @sleep_interval
           create_container
-          wait_for_healthy_container
-          @emulator_commander.check_emulator_connection if is_running_on_emulator
+
+          unless wait_for_healthy_container
+            UI.important('Container is unhealthy. Exiting..')
+            # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
+            exit 2
+          end
+
+          if is_running_on_emulator && !@emulator_commander.check_connection
+            UI.important('Cannot connect to emulator. Exiting..')
+            exit 2
+          end
         end
 
         if is_running_on_emulator
@@ -120,6 +133,7 @@ module Fastlane
           print_cpu_load
           @docker_commander.stop_container
           @docker_commander.delete_container
+          
           sleep @sleep_interval
           container = create_container_call
           set_container_name(container)
@@ -211,7 +225,7 @@ module Fastlane
       end
 
       # Waits until container is healthy using specified timeout
-      def wait_for_healthy_container(will_exit = true)
+      def wait_for_healthy_container
         UI.important('Waiting for Container to be in the Healthy state.')
 
         number_of_tries = timeout / sleep_interval
@@ -231,9 +245,7 @@ module Fastlane
           sleep sleep_interval
         end
         UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']['Status']}'")
-        # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
-        exit 2 if will_exit
-        raise 'Fail'
+        false
       end
 
       # Checks if port is already openZ
@@ -279,6 +291,7 @@ module Fastlane
           @container_name = @emulator_commander.container_name = @docker_commander.container_name = container
         end
       end
+
     end
   end
 end
