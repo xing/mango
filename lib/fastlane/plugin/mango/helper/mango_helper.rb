@@ -69,10 +69,15 @@ module Fastlane
           @container.delete(force: true)
           sleep @sleep_interval
           create_container
-          raise 'Container is unhealthy. Exiting..' unless wait_for_healthy_container
+
+          unless wait_for_healthy_container
+            UI.important('Container is unhealthy. Exiting..')
+            # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
+            exit 2
+          end
+
           if is_running_on_emulator && !EmulatorCommander.check_connection(container_name: container_name)
             UI.important('Cannot connect to emulator. Exiting..')
-            # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
             exit 2
           end
         end
