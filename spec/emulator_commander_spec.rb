@@ -4,9 +4,9 @@ describe Fastlane::Helper::EmulatorCommander do
 
   describe '#disable_animations' do
     it 'disables emulator animation' do
-      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i a_name bash -l -c \"adb shell settings put global window_animation_scale 0.0\"")
-      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i a_name bash -l -c \"adb shell settings put global transition_animation_scale 0.0\"")
-      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i a_name bash -l -c \"adb shell settings put global animator_duration_scale 0.0\"")
+      expect(Fastlane::Helper::DockerCommander).to receive(:docker_exec).with(command: "adb shell settings put global window_animation_scale 0.0", container_name:'a_name')
+      expect(Fastlane::Helper::DockerCommander).to receive(:docker_exec).with(command: "adb shell settings put global transition_animation_scale 0.0", container_name:'a_name')
+      expect(Fastlane::Helper::DockerCommander).to receive(:docker_exec).with(command: "adb shell settings put global animator_duration_scale 0.0", container_name:'a_name')
 
       described_class.disable_animations(container_name: 'a_name')
     end
