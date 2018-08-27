@@ -35,6 +35,11 @@ module Fastlane
       rescue StandardError
         # Do nothing if the network bridge is already gone
       end
+
+      def self.docker_exec(command:, container_name:)
+        Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"") if container_name
+      end
+
     end
   end
 end
