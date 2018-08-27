@@ -20,8 +20,10 @@ module Fastlane
 
         if emulator_is_healthy?(container_name: container_name)
           UI.success('Emulator connected successfully')
+          true
         else
-          raise "Something went wrong. Newly created device couldn't connect to the adb"
+          UI.important("Something went wrong. Newly created device couldn't connect to the adb")
+          false
         end
       end
 

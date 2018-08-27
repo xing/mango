@@ -32,11 +32,14 @@ describe Fastlane::Helper::EmulatorCommander do
   end
 
   describe '#check_emulator_connection' do
-    it 'raises if simulator is unhealthy' do
+    it 'returns false if simulator is unhealthy' do
       expect(Fastlane::Actions).to receive(:sh).with("docker exec -i some_name bash -l -c \"adb devices\"").and_return("emulator_5554 \tunauthorized")
-      expect {
-        described_class.check_connection(container_name: 'some_name')
-      }.to raise_exception(RuntimeError, "Something went wrong. Newly created device couldn't connect to the adb")
+      expect(described_class.check_connection(container_name: 'some_name')).to be false
+    end
+
+    it 'returns true if simulator is healthy' do
+      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i some_name bash -l -c \"adb devices\"").and_return("emulator_5554 \tdevice")
+      expect(described_class.check_connection(container_name: 'some_name')).to be true
     end
 
     it 'prints a success message if simulator is healthy' do
