@@ -2,6 +2,7 @@ require_relative 'docker_commander'
 
 module Fastlane
   module Helper
+
     class EmulatorCommander
 
       attr_accessor :container_name
