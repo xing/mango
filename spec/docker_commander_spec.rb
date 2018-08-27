@@ -79,7 +79,7 @@ describe Fastlane::Helper::DockerCommander do
           Fastlane::Actions.sh('test')
           raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
         end
-      }.to raise_exception
+      }.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
     end
 
     it 'Calls prune just once when the message is related to thin pool and raise if initial command fails' do
@@ -89,7 +89,7 @@ describe Fastlane::Helper::DockerCommander do
         @docker_commander.handle_thin_pool_exception do
           raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
         end
-      }.to raise_exception
+      }.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
     end
 
   end
