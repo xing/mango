@@ -3,6 +3,7 @@ require 'timeout'
 require 'os'
 require 'net/http'
 require_relative 'docker_commander'
+require_relative 'emulator_commander'
 
 module Fastlane
   module Helper
@@ -25,8 +26,6 @@ module Fastlane
         @pre_action = params[:pre_action]
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
-
-        @docker_commander = DockerCommander
       end
 
       # Setting up the container:
@@ -49,7 +48,7 @@ module Fastlane
         pull_from_registry if @pull_latest_image
 
         # Make sure that network bridge for the current container is not already used
-        @docker_commander.disconnect_network_bridge(container_name: container_name)
+        DockerCommander.disconnect_network_bridge(container_name: container_name)
 
         create_container
 
@@ -57,39 +56,51 @@ module Fastlane
           raise 'Linux requires GPU acceleration for running emulators, but KVM virtualization is not supported by your CPU. Exiting..'
         end
 
-        begin
-          wait_for_healthy_container false
-          check_emulator_connection if is_running_on_emulator
-        rescue StandardError
+        container_state = wait_for_healthy_container
+
+        if is_running_on_emulator
+          connection_state = EmulatorCommander.check_connection(container_name: container_name)
+          container_state = connection_state && connection_state
+        end
+
+        unless container_state
           UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
           @container.stop
           @container.delete(force: true)
           sleep @sleep_interval
           create_container
-          wait_for_healthy_container
-          check_emulator_connection if is_running_on_emulator
+
+          unless wait_for_healthy_container
+            UI.important('Container is unhealthy. Exiting..')
+            # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
+            exit 2
+          end
+
+          if is_running_on_emulator && !EmulatorCommander.check_connection(container_name: container_name)
+            UI.important('Cannot connect to emulator. Exiting..')
+            exit 2
+          end
+        end
+
+        if is_running_on_emulator
+          EmulatorCommander.disable_animations(container_name: container_name)
+          EmulatorCommander.increase_logcat_storage(container_name: container_name)
         end
       end
 
       def kvm_disabled?
         begin
-          @docker_commander.docker_exec(command: 'kvm-ok > kvm-ok.txt', container_name: container_name)
+          DockerCommander.docker_exec(command: 'kvm-ok > kvm-ok.txt', container_name: container_name)
         rescue StandardError
           # kvm-ok will always throw regardless of the result. therefore we save the output in the file and ignore the error
         end
-        @docker_commander.docker_exec(command: 'cat kvm-ok.txt', container_name: container_name).include?('KVM acceleration can NOT be used')
+        DockerCommander.docker_exec(command: 'cat kvm-ok.txt', container_name: container_name).include?('KVM acceleration can NOT be used')
       end
 
       # Stops and remove container
       def clean_container
         @container.stop
         @container.delete(force: true)
-      end
-
-      # Executes commands inside docker container
-      # TODO: REMOVE / MOVE THIS to docker_commander
-      def docker_exec(command)
-        Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
       end
 
       private
@@ -107,25 +118,6 @@ module Fastlane
         UI.success("Link to VNC: http://#{@host_ip_address}:#{@no_vnc_port}")
       end
 
-      # Restarts adb on the separate port and checks if created emulator is connected
-      def check_emulator_connection
-        UI.success('Checking if emulator is connected to ADB.')
-
-        if emulator_is_healthy?
-          UI.success('Emulator connected successfully')
-        else
-          raise "Something went wrong. Newly created device couldn't connect to the adb"
-        end
-
-        disable_animations
-        increase_logcat_storage
-      end
-
-      def emulator_is_healthy?
-        list_devices = docker_exec('adb devices')
-        list_devices.include? "\tdevice"
-      end
-
       # Creates new container using params
       def create_container
         UI.important("Creating container: #{container_name}")
@@ -136,8 +128,8 @@ module Fastlane
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           print_cpu_load
-          @docker_commander.stop_container(container_name: container_name)
-          @docker_commander.delete_container(container_name: container_name)
+          DockerCommander.stop_container(container_name: container_name)
+          DockerCommander.delete_container(container_name: container_name)
           sleep @sleep_interval
           container = create_container_call
           @container_name = container unless container_name
@@ -162,7 +154,7 @@ module Fastlane
 
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
 
-        @docker_commander.start_container(emulator_args: emulator_args, docker_name: container_name, docker_image: docker_image)
+        DockerCommander.start_container(emulator_args: emulator_args, docker_name: container_name, docker_image: docker_image)
       end
 
       def execute_pre_action
@@ -173,7 +165,7 @@ module Fastlane
       def pull_from_registry
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
-        @docker_commander.pull_image(docker_image_name: docker_image_name)
+        DockerCommander.pull_image(docker_image_name: docker_image_name)
       end
 
       # Checks that chosen ports are not already allocated. If they are, it will stop the allocated container
@@ -187,8 +179,8 @@ module Fastlane
         if port_open?('0.0.0.0', @no_vnc_port)
           UI.important('Something went wrong. VNC port is still busy')
           sleep @sleep_interval
-          @docker_commander.stop_container(container_name: container_name)
-          @docker_commander.delete_container(container_name: container_name)
+          DockerCommander.stop_container(container_name: container_name)
+          DockerCommander.delete_container(container_name: container_name)
         end
       end
 
@@ -229,7 +221,7 @@ module Fastlane
       end
 
       # Waits until container is healthy using specified timeout
-      def wait_for_healthy_container(will_exit = true)
+      def wait_for_healthy_container
         UI.important('Waiting for Container to be in the Healthy state.')
 
         number_of_tries = timeout / sleep_interval
@@ -249,9 +241,7 @@ module Fastlane
           sleep sleep_interval
         end
         UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']['Status']}'")
-        # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
-        exit 2 if will_exit
-        raise 'Fail'
+        false
       end
 
       # Checks if port is already openZ
@@ -291,23 +281,6 @@ module Fastlane
         raise "CPU was overloaded. Couldn't start emulator"
       end
 
-      # Disables animation for faster and stable testing
-      def disable_animations
-        docker_exec('adb shell settings put global window_animation_scale 0.0')
-        docker_exec('adb shell settings put global transition_animation_scale 0.0')
-        docker_exec('adb shell settings put global animator_duration_scale 0.0')
-      end
-
-      # Increases logcat storage
-      def increase_logcat_storage
-        docker_exec('adb logcat -G 16m')
-      end
-
-      def disconnect_network_bridge
-        `docker network disconnect -f bridge #{container_name}`
-      rescue StandardError
-        # Do nothing if the network bridge is already gone
-      end
     end
   end
 end
