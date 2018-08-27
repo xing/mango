@@ -34,7 +34,7 @@ module Fastlane
         Actions.sh("docker rm #{container_name}") if container_name
       end
 
-      def self.disconnect_network_bridge(container_name: container_name)
+      def self.disconnect_network_bridge(container_name:)
         Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
       rescue StandardError
         # Do nothing if the network bridge is already gone
