@@ -77,7 +77,7 @@ describe Fastlane::Helper::DockerCommander do
       expect {
         @docker_commander.handle_thin_pool_exception do
           Fastlane::Actions.sh('test')
-          raise(FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...')
+          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
         end
       }.to raise_exception
     end
@@ -87,7 +87,7 @@ describe Fastlane::Helper::DockerCommander do
 
       expect {
         @docker_commander.handle_thin_pool_exception do
-          raise(FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...')
+          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
         end
       }.to raise_exception
     end
