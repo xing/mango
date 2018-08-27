@@ -48,12 +48,10 @@ module Fastlane
         begin
           block.call
         rescue FastlaneCore::Interface::FastlaneShellError => exception
-          if exception.message =~ /Create more free space in thin pool/
-            retry_counter = retry_counter.to_i + 1
-            if retry_counter < 2
-              prune
-              retry
-            end
+          retry_counter = retry_counter.to_i + 1
+          if exception.message =~ /Create more free space in thin pool/ && retry_counter < 2
+            prune
+            retry
           else
             raise exception
           end
