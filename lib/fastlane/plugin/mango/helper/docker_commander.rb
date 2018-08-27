@@ -19,8 +19,7 @@ module Fastlane
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
-        output = Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
-        output.split("\n").last
+        Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
       end
 
       def self.stop_container(container_name:)
@@ -31,7 +30,7 @@ module Fastlane
         Actions.sh("docker rm #{container_name}") if container_name
       end
 
-      def self.disconnect_network_bridge(container_name: container_name)
+      def self.disconnect_network_bridge(container_name:)
         Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
       rescue StandardError
         # Do nothing if the network bridge is already gone
