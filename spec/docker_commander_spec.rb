@@ -87,5 +87,17 @@ describe Fastlane::Helper::DockerCommander do
       end
     end
   end
+  
+  describe '#docker_exec' do
+    it 'executes commands inside docker if container name is specified' do
+      expect(Fastlane::Actions).to receive(:sh).with("docker exec -i my_container bash -l -c \"do stuff\"")
+      @docker_commander.docker_exec(command: 'do stuff', container_name: 'my_container')
+    end
+
+    it 'does not execute the command if the container name is not specified' do
+      expect(Fastlane::Actions).not_to receive(:sh)
+      @docker_commander.docker_exec(command: 'do stuff', container_name: nil)
+    end
+  end
 
 end
