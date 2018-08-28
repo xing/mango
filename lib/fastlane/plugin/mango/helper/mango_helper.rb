@@ -169,7 +169,7 @@ module Fastlane
       def pull_from_registry
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
-        DockerCommander.pull_image(docker_image_name: docker_image_name)
+        @docker_commander.pull_image(docker_image_name: docker_image_name)
       end
 
       # Checks that chosen ports are not already allocated. If they are, it will stop the allocated container

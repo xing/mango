@@ -14,7 +14,7 @@ module Fastlane
       def pull_image(docker_image_name:)
         handle_thin_pool_exception do
           Actions.sh("docker pull #{docker_image_name}")
-        end  
+        end
       end
 
       def start_container(emulator_args:, docker_image:)
