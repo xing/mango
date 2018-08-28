@@ -54,11 +54,11 @@ module Fastlane
         end
       end
         
-      def self.prune
+      def prune
         Action.sh('docker system prune -f')
       end
 
-      def self.handle_thin_pool_exception(&block)
+      def handle_thin_pool_exception(&block)
         begin
           block.call
         rescue FastlaneCore::Interface::FastlaneShellError => exception
