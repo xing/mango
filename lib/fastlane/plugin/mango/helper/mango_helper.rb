@@ -26,6 +26,9 @@ module Fastlane
         @pre_action = params[:pre_action]
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
+        
+        @docker_commander = DockerCommander.new(container_name)
+        @emulator_commander = EmulatorCommander.new(container_name)
       end
 
       # Setting up the container:
@@ -48,7 +51,7 @@ module Fastlane
         pull_from_registry if @pull_latest_image
 
         # Make sure that network bridge for the current container is not already used
-        DockerCommander.disconnect_network_bridge(container_name: container_name)
+        @docker_commander.disconnect_network_bridge
 
         create_container
 
@@ -59,7 +62,7 @@ module Fastlane
         container_state = wait_for_healthy_container
 
         if is_running_on_emulator
-          connection_state = EmulatorCommander.check_connection(container_name: container_name)
+          connection_state = @emulator_commander.check_connection
           container_state = connection_state && connection_state
         end
 
@@ -76,25 +79,25 @@ module Fastlane
             exit 2
           end
 
-          if is_running_on_emulator && !EmulatorCommander.check_connection(container_name: container_name)
+          if is_running_on_emulator && !@emulator_commander.check_connection
             UI.important('Cannot connect to emulator. Exiting..')
             exit 2
           end
         end
 
         if is_running_on_emulator
-          EmulatorCommander.disable_animations(container_name: container_name)
-          EmulatorCommander.increase_logcat_storage(container_name: container_name)
+          @emulator_commander.disable_animations
+          @emulator_commander.increase_logcat_storage
         end
       end
 
       def kvm_disabled?
         begin
-          DockerCommander.docker_exec(command: 'kvm-ok > kvm-ok.txt', container_name: container_name)
+          @docker_commander.exec(command: 'kvm-ok > kvm-ok.txt')
         rescue StandardError
           # kvm-ok will always throw regardless of the result. therefore we save the output in the file and ignore the error
         end
-        DockerCommander.docker_exec(command: 'cat kvm-ok.txt', container_name: container_name).include?('KVM acceleration can NOT be used')
+        @docker_commander.exec(command: 'cat kvm-ok.txt').include?('KVM acceleration can NOT be used')
       end
 
       # Stops and remove container
@@ -124,15 +127,16 @@ module Fastlane
         print_cpu_load
         begin
           container = create_container_call
-          @container_name = container unless container_name
+          set_container_name(container)
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           print_cpu_load
-          DockerCommander.stop_container(container_name: container_name)
-          DockerCommander.delete_container(container_name: container_name)
+          @docker_commander.stop_container
+          @docker_commander.delete_container
+          
           sleep @sleep_interval
           container = create_container_call
-          @container_name = container unless container_name
+          set_container_name(container)
         end
         get_container_instance(container)
       end
@@ -154,7 +158,7 @@ module Fastlane
 
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
 
-        DockerCommander.start_container(emulator_args: emulator_args, docker_name: container_name, docker_image: docker_image)
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
       end
 
       def execute_pre_action
@@ -165,7 +169,7 @@ module Fastlane
       def pull_from_registry
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
-        DockerCommander.pull_image(docker_image_name: docker_image_name)
+        @docker_commander.pull_image(docker_image_name: docker_image_name)
       end
 
       # Checks that chosen ports are not already allocated. If they are, it will stop the allocated container
@@ -179,8 +183,8 @@ module Fastlane
         if port_open?('0.0.0.0', @no_vnc_port)
           UI.important('Something went wrong. VNC port is still busy')
           sleep @sleep_interval
-          DockerCommander.stop_container(container_name: container_name)
-          DockerCommander.delete_container(container_name: container_name)
+          @docker_commander.stop_container
+          @docker_commander.delete_container
         end
       end
 
@@ -279,6 +283,13 @@ module Fastlane
           return true
         end
         raise "CPU was overloaded. Couldn't start emulator"
+      end
+
+      # if we do not have container name, we cane use container ID that we got from create call
+      def set_container_name(container)
+        unless container_name
+          @container_name = @emulator_commander.container_name = @docker_commander.container_name = container
+        end
       end
 
     end

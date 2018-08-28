@@ -3,17 +3,23 @@ require 'os'
 
 module Fastlane
   module Helper
-    module DockerCommander
+    class DockerCommander
 
-      def self.pull_image(docker_image_name:)
+      attr_accessor :container_name
+
+      def initialize(container_name)
+        @container_name = container_name
+      end
+
+      def pull_image(docker_image_name:)
         handle_thin_pool_exception do
           Actions.sh("docker pull #{docker_image_name}")
         end
       end
 
-      def self.start_container(emulator_args:, docker_name:, docker_image:)
-        docker_name = if docker_name
-                        "--name #{docker_name}"
+      def start_container(emulator_args:, docker_image:)
+        docker_name = if container_name
+                        "--name #{container_name}"
                       else
                         ''
                       end
@@ -26,25 +32,33 @@ module Fastlane
         end
       end
 
-      def self.stop_container(container_name:)
+      def stop_container
         Actions.sh("docker stop #{container_name}") if container_name
       end
 
-      def self.delete_container(container_name:)
+      def delete_container
         Actions.sh("docker rm #{container_name}") if container_name
       end
 
-      def self.disconnect_network_bridge(container_name:)
+      def disconnect_network_bridge
         Actions.sh("docker network disconnect -f bridge #{container_name}") if container_name
       rescue StandardError
         # Do nothing if the network bridge is already gone
       end
 
-      def self.prune
+      def exec(command:)
+        if container_name
+          Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
+        else
+          raise('Cannot execute docker command because the container name is unknown')
+        end
+      end
+        
+      def prune
         Action.sh('docker system prune -f')
       end
 
-      def self.handle_thin_pool_exception(&block)
+      def handle_thin_pool_exception(&block)
         begin
           block.call
         rescue FastlaneCore::Interface::FastlaneShellError => exception
@@ -58,9 +72,6 @@ module Fastlane
         end
       end
 
-      def self.docker_exec(command:, container_name:)
-        Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"") if container_name
-      end
     end
   end
 end
