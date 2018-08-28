@@ -14,14 +14,14 @@ module Fastlane
 
       # Disables animation for faster and stable testing
       def disable_animations
-        @docker_commander.docker_exec(command: 'adb shell settings put global window_animation_scale 0.0')
-        @docker_commander.docker_exec(command: 'adb shell settings put global transition_animation_scale 0.0')
-        @docker_commander.docker_exec(command: 'adb shell settings put global animator_duration_scale 0.0')
+        @docker_commander.exec(command: 'adb shell settings put global window_animation_scale 0.0')
+        @docker_commander.exec(command: 'adb shell settings put global transition_animation_scale 0.0')
+        @docker_commander.exec(command: 'adb shell settings put global animator_duration_scale 0.0')
       end
 
       # Increases logcat storage
       def increase_logcat_storage
-        @docker_commander.docker_exec(command: 'adb logcat -G 16m')
+        @docker_commander.exec(command: 'adb logcat -G 16m')
       end
 
       # Restarts adb on the separate port and checks if created emulator is connected
@@ -38,7 +38,7 @@ module Fastlane
       end
 
       def emulator_is_healthy?
-        list_devices = @docker_commander.docker_exec(command: 'adb devices')
+        list_devices = @docker_commander.exec(command: 'adb devices')
         list_devices.include? "\tdevice"
       end
     end

@@ -46,7 +46,7 @@ module Fastlane
         # Do nothing if the network bridge is already gone
       end
 
-      def docker_exec(command:)
+      def exec(command:)
         if container_name
           Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
         else

@@ -93,11 +93,11 @@ module Fastlane
 
       def kvm_disabled?
         begin
-          @docker_commander.docker_exec(command: 'kvm-ok > kvm-ok.txt')
+          @docker_commander.exec(command: 'kvm-ok > kvm-ok.txt')
         rescue StandardError
           # kvm-ok will always throw regardless of the result. therefore we save the output in the file and ignore the error
         end
-        @docker_commander.docker_exec(command: 'cat kvm-ok.txt').include?('KVM acceleration can NOT be used')
+        @docker_commander.exec(command: 'cat kvm-ok.txt').include?('KVM acceleration can NOT be used')
       end
 
       # Stops and remove container

@@ -19,13 +19,13 @@ module Fastlane
           UI.success("Starting Android Task.")
           bundle_install = params[:bundle_install] ? '&& bundle install ' : ''
 
-          docker_commander.docker_exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
+          docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
         end
 
       ensure
         post_actions = params[:post_actions]
         if post_actions && !mango_helper.kvm_disabled?
-          docker_commander.docker_exec(command: "cd #{workspace_dir} && #{post_actions}")
+          docker_commander.exec(command: "cd #{workspace_dir} && #{post_actions}")
         end
 
         UI.important("Cleaning up #{params[:emulator_name]} container")
