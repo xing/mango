@@ -5,13 +5,13 @@ module Fastlane
     module CpuLoadHandler
 
       def self.print_cpu_load(load = cpu_load)
-        UI.important("CPU load is: #{load}")
+        UI.important("CPU load is: #{load}") if load
       end
 
       # Gets load average of Linux machine
       def self.cpu_load
         load = Actions.sh('cat /proc/loadavg')
-        load.split(' ').first.to_f
+        load.split(' ').first.to_f unless load.empty?
       end
 
       # Gets amount of the CPU cores
@@ -25,7 +25,7 @@ module Fastlane
         if OS.linux?
           30.times do
             load = cpu_load
-            return true if load < cpu_core_amount.to_i * 1.5
+            return true if load <= cpu_core_amount.to_i * 1.5
             print_cpu_load(load)
             UI.important('Waiting for available resources..')
             sleep 60
