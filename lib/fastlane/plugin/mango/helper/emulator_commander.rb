@@ -25,13 +25,15 @@ module Fastlane
       end
 
       # Restarts adb on the separate port and checks if created emulator is connected
-      def check_emulator_connection
+      def check_connection
         UI.success('Checking if emulator is connected to ADB.')
 
         if emulator_is_healthy?
           UI.success('Emulator connected successfully')
+          true
         else
-          raise "Something went wrong. Newly created device couldn't connect to the adb"
+          UI.important("Something went wrong. Newly created device couldn't connect to the adb")
+          false
         end
       end
 
