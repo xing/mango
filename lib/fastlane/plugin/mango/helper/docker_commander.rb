@@ -12,7 +12,9 @@ module Fastlane
       end
 
       def pull_image(docker_image_name:)
-        Actions.sh("docker pull #{docker_image_name}")
+        handle_thin_pool_exception do
+          Actions.sh("docker pull #{docker_image_name}")
+        end  
       end
 
       def start_container(emulator_args:, docker_image:)
@@ -25,7 +27,9 @@ module Fastlane
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
-        Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
+        handle_thin_pool_exception do
+          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
+        end
       end
 
       def stop_container
@@ -50,6 +54,24 @@ module Fastlane
         end
       end
         
+      def self.prune
+        Action.sh('docker system prune -f')
+      end
+
+      def self.handle_thin_pool_exception(&block)
+        begin
+          block.call
+        rescue FastlaneCore::Interface::FastlaneShellError => exception
+          retry_counter = retry_counter.to_i + 1
+          if exception.message =~ /Create more free space in thin pool/ && retry_counter < 2
+            prune
+            retry
+          else
+            raise exception
+          end
+        end
+      end
+
     end
   end
 end

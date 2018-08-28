@@ -63,6 +63,38 @@ describe Fastlane::Helper::DockerCommander do
     end
   end
 
+  describe '#handle_thin_pool_exception' do
+    it 'Raises when exception message is not related to thin pool' do
+      expect {
+        @docker_commander.handle_thin_pool_exception do
+          raise FastlaneCore::Interface::FastlaneShellError, 'some message'
+        end
+      }.to raise_error(FastlaneCore::Interface::FastlaneShellError, 'some message')
+    end
+
+    it 'Retries the command when the message is related to thin pool and raise if it fails after retry' do
+      expect(Fastlane::Actions).to receive(:sh).twice.with('test')
+
+      expect {
+        @docker_commander.handle_thin_pool_exception do
+          Fastlane::Actions.sh('test')
+          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
+        end
+      }.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
+    end
+
+    it 'Calls prune just once when the message is related to thin pool and raise if initial command fails' do
+      expect(@docker_commander).to receive(:prune).once
+
+      expect {
+        @docker_commander.handle_thin_pool_exception do
+          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
+        end
+      }.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
+    end
+
+  end
+
   describe '#docker_exec' do
     it 'executes commands inside docker if container name is specified' do
       expect(Fastlane::Actions).to receive(:sh).with("docker exec -i abcdef123 bash -l -c \"do stuff\"")
@@ -76,4 +108,5 @@ describe Fastlane::Helper::DockerCommander do
       }.to raise_exception('Cannot execute docker command because the container name is unknown')
     end
   end
+
 end
