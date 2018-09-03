@@ -61,7 +61,7 @@ module Fastlane
 
         container_state = wait_for_healthy_container
 
-        if is_running_on_emulator
+        if is_running_on_emulator && container_state
           connection_state = @emulator_commander.check_connection
           container_state = connection_state && connection_state
         end
