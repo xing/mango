@@ -50,6 +50,16 @@ module Fastlane
       def emulator_is_healthy?
         list_devices = @docker_commander.exec(command: 'adb devices')
         list_devices.include? "\tdevice"
+      rescue FastlaneCore::Interface::FastlaneShellError => e
+        # Under weird circumstances it can happen that adb is running but adb is not completely up
+        # it recovers after some time, so wait and retry
+        retry_counter = retry_counter.to_i + 1
+        if retry_counter <= 5
+          sleep 10*retry_counter
+          retry
+        else
+          raise e
+        end
       end
     end
   end

@@ -67,7 +67,7 @@ module Fastlane
         end
 
         unless container_state
-          UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
+          UI.important("Will retry to create a healthy docker container after #{sleep_interval} seconds")
           @container.stop
           @container.delete(force: true)
           sleep @sleep_interval
