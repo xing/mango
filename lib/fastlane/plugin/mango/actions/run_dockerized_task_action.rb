@@ -166,6 +166,13 @@ module Fastlane
                                       description: "Define if you want to pull the latest image",
                                       type: Boolean,
                                       default_value: false,
+                                      optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :environment_variables,
+                                      env_name: "ENVIRONMENT_VARIABLES",
+                                      description: "Comma seperated list of environment variables which are passed into the docker container",
+                                      type: Array,
+                                      default_value: [],
                                       optional: true)
         ]
       end
