@@ -25,11 +25,11 @@ module Fastlane
       ensure
         post_actions = params[:post_actions]
         if post_actions && !mango_helper.kvm_disabled?
-          docker_commander.exec(command: "cd #{workspace_dir} && #{post_actions}")
+          docker_commander&.exec(command: "cd #{workspace_dir} && #{post_actions}")
         end
 
         UI.important("Cleaning up #{params[:emulator_name]} container")
-        mango_helper.clean_container if mango_helper.instance_variable_get('@container')
+        mango_helper.clean_container if mango_helper&.instance_variable_get('@container')
       end
 
       def self.description

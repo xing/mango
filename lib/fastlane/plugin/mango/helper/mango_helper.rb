@@ -44,8 +44,6 @@ module Fastlane
 
         handle_ports_allocation if is_running_on_emulator
 
-        execute_pre_action if @pre_action
-
         pull_from_registry if @pull_latest_image
 
         # Make sure that network bridge for the current container is not already used
@@ -59,13 +57,13 @@ module Fastlane
 
         container_state = wait_for_healthy_container
 
-        if is_running_on_emulator
+        if is_running_on_emulator && container_state
           connection_state = @emulator_commander.check_connection
           container_state = connection_state && connection_state
         end
 
         unless container_state
-          UI.important("Will retry checking for a healthy docker container after #{sleep_interval} seconds")
+          UI.important("Will retry to create a healthy docker container after #{sleep_interval} seconds")
           @container.stop
           @container.delete(force: true)
           sleep @sleep_interval
@@ -87,6 +85,8 @@ module Fastlane
           @emulator_commander.disable_animations
           @emulator_commander.increase_logcat_storage
         end
+
+        execute_pre_action if @pre_action
       end
 
       def kvm_disabled?
@@ -160,7 +160,7 @@ module Fastlane
       end
 
       def execute_pre_action
-        Actions.sh(@pre_action)
+        @docker_commander.exec(command: @pre_action)
       end
 
       # Pull the docker images before creating a container
