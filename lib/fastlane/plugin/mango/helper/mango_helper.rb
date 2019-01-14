@@ -156,13 +156,14 @@ module Fastlane
       def create_container_call
         # When CPU is under load we cannot create a healthy container
         wait_cpu_to_idle
+
         additionalenv = ''
         environment_variables.each do |variable|
           additionalenv = additionalenv + " -e #{variable}"
         end
-        emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'#{additionalenv}" : ''
+        emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
+        emulator_args = "#{emulator_args}#{additionalenv}"
         
-
         @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
       end
 
