@@ -8,7 +8,7 @@ require_relative 'emulator_commander'
 module Fastlane
   module Helper
     class MangoHelper
-      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator
+      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables
 
       def initialize(params)
         @container_name = params[:container_name]
@@ -26,6 +26,7 @@ module Fastlane
         @pre_action = params[:pre_action]
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
+        @environment_variables = params[:environment_variables]
         
         @docker_commander = DockerCommander.new(container_name)
         @emulator_commander = EmulatorCommander.new(container_name)
@@ -156,8 +157,13 @@ module Fastlane
         # When CPU is under load we cannot create a healthy container
         wait_cpu_to_idle
 
+        additional_env = ''
+        environment_variables.each do |variable|
+          additional_env = additional_env + " -e #{variable}"
+        end
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
-
+        emulator_args = "#{emulator_args}#{additional_env}"
+        
         @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
       end
 
