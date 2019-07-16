@@ -8,7 +8,7 @@ require_relative 'emulator_commander'
 module Fastlane
   module Helper
     class MangoHelper
-      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables
+      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled
 
       def initialize(params)
         @container_name = params[:container_name]
@@ -27,6 +27,7 @@ module Fastlane
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
         @environment_variables = params[:environment_variables]
+        @vnc_enabled = params[:vnc_enabled]
         
         @docker_commander = DockerCommander.new(container_name)
         @emulator_commander = EmulatorCommander.new(container_name)
@@ -41,11 +42,13 @@ module Fastlane
         assign_unique_vnc_port if port_factor && is_running_on_emulator
 
         if container_available?
+          UI.important('Container was already started. Stopping..')
           @container.stop
+          UI.important('Deleting container..')
           @container.delete(force: true)
         end
 
-        handle_ports_allocation if is_running_on_emulator
+        handle_ports_allocation if is_running_on_emulator && vnc_enabled
 
         pull_from_registry if @pull_latest_image
 
@@ -173,6 +176,7 @@ module Fastlane
 
       # Pull the docker images before creating a container
       def pull_from_registry
+        UI.important('Pulling the :latest image from the registry')
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
         @docker_commander.pull_image(docker_image_name: docker_image_name)

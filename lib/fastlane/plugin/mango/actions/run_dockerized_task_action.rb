@@ -173,7 +173,14 @@ module Fastlane
                                       description: "Comma seperated list of environment variables which are passed into the docker container",
                                       type: Array,
                                       default_value: [],
-                                      optional: true)
+                                      optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :vnc_enabled,
+                                       env_name: "VNC_ENABLED",
+                                       description: "A bool. True for vnc_enabled False for vnc_disabled",
+                                       type: Boolean,
+                                       default_value: true,
+                                       optional: true)
         ]
       end
     end
