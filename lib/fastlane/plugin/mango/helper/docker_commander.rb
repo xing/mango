@@ -13,7 +13,11 @@ module Fastlane
 
       def pull_image(docker_image_name:)
         handle_thin_pool_exception do
-          Actions.sh("docker pull #{docker_image_name}")
+          begin
+            Actions.sh("docker pull #{docker_image_name}")
+          rescue StandardError
+            retry
+          end  
         end
       end
 
