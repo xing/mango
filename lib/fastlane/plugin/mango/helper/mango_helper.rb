@@ -168,7 +168,7 @@ module Fastlane
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
         emulator_args = "#{emulator_args}#{additional_env}"
         
-        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,core_amount: core_amount)
       end
 
       def execute_pre_action
