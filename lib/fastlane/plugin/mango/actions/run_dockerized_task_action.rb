@@ -116,6 +116,13 @@ module Fastlane
                                       optional: true,
                                       type: String),
 
+          FastlaneCore::ConfigItem.new(key: :core_amount,
+                                       env_name: "CORE_AMOUNT",
+                                       default_value: 8,
+                                       description: "Define if we want to start docker container with the limitation",
+                                       optional: true,
+                                       type: Integer),
+
           FastlaneCore::ConfigItem.new(key: :workspace_dir,
                                        env_name: "WORKSPACE_DIR",
                                        default_value: '/root/tests/',
