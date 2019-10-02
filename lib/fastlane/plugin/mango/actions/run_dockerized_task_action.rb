@@ -118,7 +118,7 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :core_amount,
                                        env_name: "CORE_AMOUNT",
-                                       default_value: 8,
+                                       default_value: 0,
                                        description: "Define if we want to start docker container with the limitation",
                                        optional: true,
                                        type: Integer),
