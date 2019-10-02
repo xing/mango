@@ -18,7 +18,7 @@ module Fastlane
         @timeout = params[:container_timeout]
         @sdk_path = params[:sdk_path]
         @port_factor = params[:port_factor].to_i
-        @core_amount = params["core_amount"].to_i
+        @core_amount = params[:core_amount].to_i
         @maximal_run_time = params[:maximal_run_time]
         @sleep_interval = 5
         @container = nil
