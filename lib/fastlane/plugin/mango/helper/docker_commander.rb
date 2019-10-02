@@ -28,7 +28,7 @@ module Fastlane
                         ""
                       end
         # if core_amount value is defined then limit the container while starting
-        core_amount = if !core_amount.nil? && core_amount > 0
+        core_amount = if core_amount && core_amount > 0
                         "--cpus=#{core_amount}"
                       else
                         ""
