@@ -6,7 +6,7 @@ require_relative 'cpu_load_handler'
 module Fastlane
   module Helper
     class MangoHelper
-      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator
+      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
 
       def initialize(params)
         @container_name = params[:container_name]
@@ -16,6 +16,7 @@ module Fastlane
         @timeout = params[:container_timeout]
         @sdk_path = params[:sdk_path]
         @port_factor = params[:port_factor].to_i
+        @core_amount = params[:core_amount].to_i
         @maximal_run_time = params[:maximal_run_time]
         @sleep_interval = 5
         @container = nil
@@ -24,6 +25,8 @@ module Fastlane
         @pre_action = params[:pre_action]
         @docker_registry_login = params[:docker_registry_login]
         @pull_latest_image = params[:pull_latest_image]
+        @environment_variables = params[:environment_variables]
+        @vnc_enabled = params[:vnc_enabled]
         
         @docker_commander = DockerCommander.new(container_name)
         @emulator_commander = EmulatorCommander.new(container_name)
@@ -38,11 +41,13 @@ module Fastlane
         assign_unique_vnc_port if port_factor && is_running_on_emulator
 
         if container_available?
+          UI.important('Container was already started. Stopping..')
           @container.stop
+          UI.important('Deleting container..')
           @container.delete(force: true)
         end
 
-        handle_ports_allocation if is_running_on_emulator
+        handle_ports_allocation if is_running_on_emulator && vnc_enabled
 
         pull_from_registry if @pull_latest_image
 
@@ -154,9 +159,14 @@ module Fastlane
         # When CPU is under load we cannot create a healthy container
         CpuLoadHandler.wait_cpu_to_idle
 
+        additional_env = ''
+        environment_variables.each do |variable|
+          additional_env = additional_env + " -e #{variable}"
+        end
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
-
-        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
+        emulator_args = "#{emulator_args}#{additional_env}"
+        
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,core_amount: core_amount)
       end
 
       def execute_pre_action
@@ -165,6 +175,7 @@ module Fastlane
 
       # Pull the docker images before creating a container
       def pull_from_registry
+        UI.important('Pulling the :latest image from the registry')
         docker_image_name = docker_image.gsub(':latest', '')
         Actions.sh(@docker_registry_login) if @docker_registry_login
         @docker_commander.pull_image(docker_image_name: docker_image_name)

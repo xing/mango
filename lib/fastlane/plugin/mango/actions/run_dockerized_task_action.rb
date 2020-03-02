@@ -14,6 +14,7 @@ module Fastlane
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
         workspace_dir = params[:workspace_dir]
 
+
         android_task = params[:android_task]
         if android_task
           UI.success("Starting Android Task.")
@@ -115,6 +116,13 @@ module Fastlane
                                       optional: true,
                                       type: String),
 
+          FastlaneCore::ConfigItem.new(key: :core_amount,
+                                       env_name: "CORE_AMOUNT",
+                                       default_value: 0,
+                                       description: "Define if we want to start docker container with the limitation",
+                                       optional: true,
+                                       type: Integer),
+
           FastlaneCore::ConfigItem.new(key: :workspace_dir,
                                        env_name: "WORKSPACE_DIR",
                                        default_value: '/root/tests/',
@@ -166,7 +174,21 @@ module Fastlane
                                       description: "Define if you want to pull the latest image",
                                       type: Boolean,
                                       default_value: false,
-                                      optional: true)
+                                      optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :environment_variables,
+                                      env_name: "ENVIRONMENT_VARIABLES",
+                                      description: "Comma seperated list of environment variables which are passed into the docker container",
+                                      type: Array,
+                                      default_value: [],
+                                      optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :vnc_enabled,
+                                       env_name: "VNC_ENABLED",
+                                       description: "A bool. True for vnc_enabled False for vnc_disabled",
+                                       type: Boolean,
+                                       default_value: true,
+                                       optional: true)
         ]
       end
     end

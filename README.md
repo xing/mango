@@ -78,6 +78,7 @@ The `mango` action has plenty of options to configure it.
 | `docker_image` | Name of the Docker image, that should be started and used to run your tasks. | butomo1989/docker-android-x86-5.1.1 | ❌ | `String` |
 | `container_timeout` | Timeout (in seconds) to get a healthy docker container. Depending on your `docker_image` it may take some time until it's started up and ready to use. | 450 (this equals 7.5 minutes) | ❌ | `Integer` |
 | `android_task` | A generic Android task you want to execute. | - | ❌ | `String` |
+| `core_amount` | Cpu core amount while starting docker container with limited resource. | - | ✅ | `Integer` |
 | `sdk_path` | The path to your Android sdk directory. | `ANDROID_HOME` environment variable | ✅ | `String` |
 | `port_factor` | Base for calculating a unique port for noVNC. We recommend to use the `EXECUTOR_NUMBER` from your Jenkins environment. | - | ✅ | `String` |
 | `workspace_dir` | Path to the workspace to execute commands. If you want to execute your `android_task` from a different directory you have to specify `workspace_dir`. | `/root/tests/` | ✅ | `String` |
