@@ -1,5 +1,4 @@
 require 'docker'
-require 'os'
 
 module Fastlane
   module Helper
