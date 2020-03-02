@@ -22,7 +22,8 @@ platform :android do
       docker_image: 'joesss/mango-base:latest',
       android_task: './gradlew testDebug',
       is_running_on_emulator: false,
-      pull_latest_image: true
+      pull_latest_image: true,
+      pre_action: "yes | sdkmanager --licenses && yes | sdkmanager --update"
     )
   end
 
