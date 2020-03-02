@@ -1,5 +1,6 @@
 lane :test do
   run_dockerized_task(
-    is_running_on_emulator: false
+    is_running_on_emulator: false,
+    pre_action: "yes | sdkmanager --licenses && yes | sdkmanager --update"
   )
 end
