@@ -9,6 +9,7 @@ module Fastlane
       attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
 
       def initialize(params)
+        Docker.options[:read_timeout] = 120
         @container_name = params[:container_name]
         @no_vnc_port = params[:no_vnc_port]
         @device_name = params[:device_name]
