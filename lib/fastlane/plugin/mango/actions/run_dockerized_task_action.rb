@@ -14,6 +14,7 @@ module Fastlane
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
         workspace_dir = params[:workspace_dir]
 
+
         android_task = params[:android_task]
         if android_task
           UI.success("Starting Android Task.")
@@ -114,6 +115,13 @@ module Fastlane
                                       description: "Base for calculating a unique port for noVNC. You can pass EXECUTOR_NUMBER from Jenkins for example, this will be unique and not clash in case of several instances running on the same machine",
                                       optional: true,
                                       type: String),
+
+          FastlaneCore::ConfigItem.new(key: :core_amount,
+                                       env_name: "CORE_AMOUNT",
+                                       default_value: 0,
+                                       description: "Define if we want to start docker container with the limitation",
+                                       optional: true,
+                                       type: Integer),
 
           FastlaneCore::ConfigItem.new(key: :workspace_dir,
                                        env_name: "WORKSPACE_DIR",

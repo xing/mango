@@ -1,16 +1,15 @@
-require 'docker'
-require 'timeout'
-require 'os'
 require 'net/http'
 require_relative 'docker_commander'
 require_relative 'emulator_commander'
+require_relative 'cpu_load_handler'
 
 module Fastlane
   module Helper
     class MangoHelper
-      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled
+      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
 
       def initialize(params)
+        Docker.options[:read_timeout] = 120
         @container_name = params[:container_name]
         @no_vnc_port = params[:no_vnc_port]
         @device_name = params[:device_name]
@@ -18,6 +17,7 @@ module Fastlane
         @timeout = params[:container_timeout]
         @sdk_path = params[:sdk_path]
         @port_factor = params[:port_factor].to_i
+        @core_amount = params[:core_amount].to_i
         @maximal_run_time = params[:maximal_run_time]
         @sleep_interval = 5
         @container = nil
@@ -128,13 +128,13 @@ module Fastlane
       # Creates new container using params
       def create_container
         UI.important("Creating container: #{container_name}")
-        print_cpu_load
+        CpuLoadHandler.print_cpu_load
         begin
           container = create_container_call
           set_container_name(container)
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
-          print_cpu_load
+          CpuLoadHandler.print_cpu_load
           @docker_commander.stop_container
           @docker_commander.delete_container
           
@@ -158,7 +158,7 @@ module Fastlane
       # Call to create a container. We don't use Docker API here, as it doesn't support --privileged.
       def create_container_call
         # When CPU is under load we cannot create a healthy container
-        wait_cpu_to_idle
+        CpuLoadHandler.wait_cpu_to_idle
 
         additional_env = ''
         environment_variables.each do |variable|
@@ -167,7 +167,7 @@ module Fastlane
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
         emulator_args = "#{emulator_args}#{additional_env}"
         
-        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image)
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,core_amount: core_amount)
       end
 
       def execute_pre_action
@@ -205,10 +205,6 @@ module Fastlane
           return container if public_ports.include? port
         end
         nil
-      end
-
-      def print_cpu_load(load = cpu_load)
-        UI.important("CPU load is: #{load}")
       end
 
       # Checks if container is already available
@@ -265,34 +261,6 @@ module Fastlane
         response.code == '200'
       rescue Timeout::Error, SocketError, Errno::ECONNREFUSED
         false
-      end
-
-      # Gets load average of Linux machine
-      def cpu_load
-        load = `cat /proc/loadavg`
-        load.split(' ').first.to_f
-      end
-
-      # Gets amount of the CPU cores
-      def cpu_core_amount
-        `cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1`
-      end
-
-      # For half an hour waiting until CPU load average is less than number of cores*2 (which considers that CPU is ready)
-      # Raises when 30 minutes timeout exceeds
-      def wait_cpu_to_idle
-        if OS.linux?
-          30.times do
-            load = cpu_load
-            return true if load < cpu_core_amount.to_i * 1.5
-            print_cpu_load(load)
-            UI.important('Waiting for available resources..')
-            sleep 60
-          end
-        else
-          return true
-        end
-        raise "CPU was overloaded. Couldn't start emulator"
       end
 
       # if we do not have container name, we cane use container ID that we got from create call

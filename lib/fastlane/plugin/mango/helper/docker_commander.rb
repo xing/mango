@@ -1,5 +1,4 @@
 require 'docker'
-require 'os'
 
 module Fastlane
   module Helper
@@ -17,22 +16,29 @@ module Fastlane
             Actions.sh("docker pull #{docker_image_name}")
           rescue StandardError
             retry
-          end  
+          end
         end
       end
 
-      def start_container(emulator_args:, docker_image:)
+      def start_container(emulator_args:, docker_image:, core_amount:)
         docker_name = if container_name
                         "--name #{container_name}"
                       else
-                        ''
+                        ""
                       end
+        # if core_amount value is defined then limit the container while starting
+        core_amount = if core_amount && core_amount > 0
+                        "--cpus=#{core_amount}"
+                      else
+                        ""
+                      end
+
 
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
         handle_thin_pool_exception do
-          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
+          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{core_amount} #{emulator_args} #{docker_name} #{docker_image}").chomp
         end
       end
 
@@ -58,7 +64,7 @@ module Fastlane
           raise('Cannot execute docker command because the container name is unknown')
         end
       end
-        
+
       def prune
         Action.sh('docker system prune -f')
       end
