@@ -180,12 +180,6 @@ module Fastlane
                                        description: "A bool. True for vnc_enabled False for vnc_disabled",
                                        type: Boolean,
                                        default_value: true,
-                                       optional: true),
-
-          FastlaneCore::ConfigItem.new(key: :cpus,
-                                       env_name: "CPUS",
-                                       description: "Number of CPUs that container can use",
-                                       type: Integer,
                                        optional: true)
         ]
       end

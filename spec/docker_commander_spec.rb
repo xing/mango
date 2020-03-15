@@ -76,16 +76,16 @@ describe Fastlane::Helper::DockerCommander do
       let(:container_name) { "abcdef123" }
 
       it 'starts the container with a specified name' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d   --name abcdef123 test-image').and_return("abdef\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: "test-image", cpus: '')
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d  --name abcdef123 test-image').and_return("abdef\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: "test-image")
         expect(container_id).to eql "abdef"
       end
     end
     context 'when container name is nil' do
       let(:container_name) { nil }
       it 'starts the container without the name parameter' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d --cpus=3   test-image').and_return("abd\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: "test-image", cpus: '--cpus=3')
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d   test-image').and_return("abd\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: "test-image")
         expect(container_id).to eql "abd"
       end
     end
