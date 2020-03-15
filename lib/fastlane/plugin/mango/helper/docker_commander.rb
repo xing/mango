@@ -21,7 +21,7 @@ module Fastlane
         end
       end
 
-      def start_container(emulator_args:, docker_image:)
+      def start_container(emulator_args:, docker_image:, cpus:)
         docker_name = if container_name
                         "--name #{container_name}"
                       else
@@ -32,7 +32,7 @@ module Fastlane
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
         handle_thin_pool_exception do
-          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{emulator_args} #{docker_name} #{docker_image}").chomp
+          Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{cpus} #{emulator_args} #{docker_name} #{docker_image}").chomp
         end
       end
 
