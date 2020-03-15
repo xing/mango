@@ -137,21 +137,22 @@ module Fastlane
           CpuLoadHandler.print_cpu_load
           @docker_commander.stop_container
           @docker_commander.delete_container
-          
           sleep @sleep_interval
           container = create_container_call
           set_container_name(container)
         end
-        get_container_instance(container)
+        @container = get_container_instance(container)
+        
+        if @container.nil?
+          sleep 3
+          @container = get_container_instance(container)
+        end
       end
 
       # Gets container instance by container ID
       def get_container_instance(container)
         Docker::Container.all(all: true).each do |cont|
-          if cont.id == container
-            @container = cont
-            break
-          end
+          return cont if cont.id == container
         end
       end
 
