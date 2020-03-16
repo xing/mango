@@ -6,7 +6,7 @@ module Fastlane
       def self.run(params)
         UI.important("The mango plugin is working!")
         workspace_dir = params[:workspace_dir]
-        ENV['DOCKER_CONFIG'] = "#{workspace_dir}/.docker"
+        ENV['DOCKER_CONFIG'] = "#{ENV['WORKSPACE']}/.docker"
         mango_helper = Fastlane::Helper::MangoHelper.new(params)
         mango_helper.setup_container
 
