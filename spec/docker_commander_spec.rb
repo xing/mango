@@ -13,32 +13,12 @@ describe Fastlane::Helper::DockerCommander do
     end
   end
 
-  describe '#stop_container' do
-    context 'when container name is set' do
-      let(:container_name) {"abcdef123"}
-
-      it 'stops the container if the container name is available' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker stop abcdef123')
-        docker_commander.stop_container
-      end
-    end
-
-    context 'when container name is nil' do
-      let(:container_name) {nil}
-
-      it 'doesnt stop the container if no container name is available' do
-        expect(Fastlane::Actions).not_to receive(:sh)
-        docker_commander.stop_container
-      end
-    end
-  end
-
   describe '#delete_container' do
     context 'when container name is set' do
       let(:container_name) {"abcdef123"}
 
       it 'deletes the container if the container name is available' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker rm abcdef123')
+        expect(Fastlane::Actions).to receive(:sh).with('docker rm -f abcdef123')
         docker_commander.delete_container
       end
     end

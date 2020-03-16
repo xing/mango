@@ -9,7 +9,6 @@ module Fastlane
       attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
 
       def initialize(params)
-        Docker.options[:read_timeout] = 120
         @container_name = params[:container_name]
         @no_vnc_port = params[:no_vnc_port]
         @device_name = params[:device_name]
@@ -28,7 +27,6 @@ module Fastlane
         @pull_latest_image = params[:pull_latest_image]
         @environment_variables = params[:environment_variables]
         @vnc_enabled = params[:vnc_enabled]
-        
         @docker_commander = DockerCommander.new(container_name)
         @emulator_commander = EmulatorCommander.new(container_name)
       end
@@ -42,10 +40,8 @@ module Fastlane
         assign_unique_vnc_port if port_factor && is_running_on_emulator
 
         if container_available?
-          UI.important('Container was already started. Stopping..')
-          @container.stop
-          UI.important('Deleting container..')
-          @container.delete(force: true)
+          UI.important('Container was already started. Stopping and removing..')
+          @docker_commander.delete_container
         end
 
         handle_ports_allocation if is_running_on_emulator && vnc_enabled
@@ -70,8 +66,7 @@ module Fastlane
 
         unless container_state
           UI.important("Will retry to create a healthy docker container after #{sleep_interval} seconds")
-          @container.stop
-          @container.delete(force: true)
+          @docker_commander.delete_container
           sleep @sleep_interval
           create_container
 
@@ -104,12 +99,6 @@ module Fastlane
         @docker_commander.exec(command: 'cat kvm-ok.txt').include?('KVM acceleration can NOT be used')
       end
 
-      # Stops and remove container
-      def clean_container
-        @container.stop
-        @container.delete(force: true)
-      end
-
       private
 
       # Sets path to adb
@@ -135,14 +124,13 @@ module Fastlane
         rescue StandardError
           UI.important("Something went wrong while creating: #{container_name}, will retry in #{@sleep_interval} seconds")
           CpuLoadHandler.print_cpu_load
-          @docker_commander.stop_container
           @docker_commander.delete_container
           sleep @sleep_interval
           container = create_container_call
           set_container_name(container)
         end
         @container = get_container_instance(container)
-        
+
         if @container.nil?
           sleep 3
           @container = get_container_instance(container)
@@ -167,7 +155,6 @@ module Fastlane
         end
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
         emulator_args = "#{emulator_args}#{additional_env}"
-        
         @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,core_amount: core_amount)
       end
 
@@ -194,7 +181,6 @@ module Fastlane
         if port_open?('0.0.0.0', @no_vnc_port)
           UI.important('Something went wrong. VNC port is still busy')
           sleep @sleep_interval
-          @docker_commander.stop_container
           @docker_commander.delete_container
         end
       end

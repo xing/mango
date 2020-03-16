@@ -5,6 +5,8 @@ module Fastlane
     class RunDockerizedTaskAction < Action
       def self.run(params)
         UI.important("The mango plugin is working!")
+        workspace_dir = params[:workspace_dir]
+        ENV['DOCKER_CONFIG'] = "#{workspace_dir}/.docker"
         mango_helper = Fastlane::Helper::MangoHelper.new(params)
         mango_helper.setup_container
 
@@ -12,8 +14,6 @@ module Fastlane
 
         failure_buffer_timeout = 5
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
-        workspace_dir = params[:workspace_dir]
-
 
         android_task = params[:android_task]
         if android_task
@@ -22,15 +22,18 @@ module Fastlane
 
           docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
         end
-
       ensure
-        post_actions = params[:post_actions]
-        if post_actions && !mango_helper.kvm_disabled?
-          docker_commander&.exec(command: "cd #{workspace_dir} && #{post_actions}")
-        end
+        begin
+          post_actions = params[:post_actions]
+          if post_actions && !mango_helper.kvm_disabled?
+            docker_commander&.exec(command: "cd #{workspace_dir} && #{post_actions}")
+          end
 
-        UI.important("Cleaning up #{params[:emulator_name]} container")
-        mango_helper.clean_container if mango_helper&.instance_variable_get('@container')
+          UI.important("Cleaning up #{params[:emulator_name]} container")
+          docker_commander.delete_container if mango_helper&.instance_variable_get('@container')
+        rescue StandardError => e
+          puts e
+        end
       end
 
       def self.description
