@@ -6,7 +6,7 @@ jobs:
      - checkout
      - run:
           name: Set Ruby Version
-          command:  echo "ruby-2.4" > ~/.ruby-version
+          command:  echo "ruby-2.5.1" > ~/.ruby-version
      - run:
           name: Bundler install
           command: bundle install && cd sample-android && bundle install  
