@@ -3,7 +3,6 @@ require 'docker'
 module Fastlane
   module Helper
     class DockerCommander
-
       attr_accessor :container_name
 
       def initialize(container_name)
@@ -12,11 +11,9 @@ module Fastlane
 
       def pull_image(docker_image_name:)
         handle_thin_pool_exception do
-          begin
-            Actions.sh("docker pull #{docker_image_name}")
-          rescue StandardError
-            retry
-          end
+          Actions.sh("docker pull #{docker_image_name}")
+        rescue StandardError
+          retry
         end
       end
 
@@ -24,15 +21,14 @@ module Fastlane
         docker_name = if container_name
                         "--name #{container_name}"
                       else
-                        ""
+                        ''
                       end
         # if core_amount value is defined then limit the container while starting
         core_amount = if core_amount && core_amount > 0
                         "--cpus=#{core_amount}"
                       else
-                        ""
+                        ''
                       end
-
 
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
@@ -65,20 +61,17 @@ module Fastlane
         Action.sh('docker system prune -f')
       end
 
-      def handle_thin_pool_exception(&block)
-        begin
-          block.call
-        rescue FastlaneCore::Interface::FastlaneShellError => exception
-          retry_counter = retry_counter.to_i + 1
-          if exception.message =~ /Create more free space in thin pool/ && retry_counter < 2
-            prune
-            retry
-          else
-            raise exception
-          end
+      def handle_thin_pool_exception
+        yield
+      rescue FastlaneCore::Interface::FastlaneShellError => exception
+        retry_counter = retry_counter.to_i + 1
+        if exception.message =~ /Create more free space in thin pool/ && retry_counter < 2
+          prune
+          retry
+        else
+          raise exception
         end
       end
-
     end
   end
 end

@@ -23,18 +23,18 @@ platform :android do
       android_task: './gradlew testDebug',
       is_running_on_emulator: false,
       pull_latest_image: true,
-      pre_action: "yes | sdkmanager --licenses && yes | sdkmanager --update"
+      pre_action: 'yes | sdkmanager --licenses && yes | sdkmanager --update'
     )
   end
 
-  desc "Run espresso tests on docker images"
+  desc 'Run espresso tests on docker images'
   lane :espresso_tests do
     run_dockerized_task(
-      container_name: "espresso_container",
-      docker_image: "joesss/mango-docker:latest",
+      container_name: 'espresso_container',
+      docker_image: 'joesss/mango-docker:latest',
       container_timeout: 120,
-      android_task: "./gradlew connectedAndroidTest",
-      post_actions: "adb logcat -d > logcat.txt",
+      android_task: './gradlew connectedAndroidTest',
+      post_actions: 'adb logcat -d > logcat.txt',
       pull_latest_image: true
     )
   end

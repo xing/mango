@@ -1,20 +1,18 @@
 require 'spec_helper'
 
 describe Fastlane::Helper::CpuLoadHandler do
-
   before do
     subject.stub(:sleep)
   end
 
   describe '#print_cpu_load' do
-
     it 'prints the load with passed parameter' do
       expect(Fastlane::UI).to receive(:important).with('CPU load is: 30')
       described_class.print_cpu_load(30)
     end
 
     it 'does not print the load if OS does not support printing it' do
-      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return("")
+      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return('')
       expect(Fastlane::UI).not_to receive(:important)
       described_class.print_cpu_load
     end
@@ -28,20 +26,20 @@ describe Fastlane::Helper::CpuLoadHandler do
 
   describe '#cpu_load' do
     it 'returns the load of cpu' do
-      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return("0.59 1.77 2.01 1/687 19522")
+      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return('0.59 1.77 2.01 1/687 19522')
       expect(described_class.cpu_load).to eql(0.59)
     end
 
     it 'returns nil if the command is not supported' do
-      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return("")
+      expect(Fastlane::Actions).to receive(:sh).with('cat /proc/loadavg').and_return('')
       expect(described_class.cpu_load).to be_nil
     end
   end
 
   describe '#cpu_core_amount' do
     it 'returns amount of cpu cores' do
-      expect(Fastlane::Actions).to receive(:sh).with("cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1").and_return("3")
-      expect(described_class.cpu_core_amount).to eql("3")
+      expect(Fastlane::Actions).to receive(:sh).with("cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1").and_return('3')
+      expect(described_class.cpu_core_amount).to eql('3')
     end
   end
 
@@ -65,9 +63,9 @@ describe Fastlane::Helper::CpuLoadHandler do
       allow(described_class).to receive(:cpu_core_amount).and_return(8)
       subject.should_receive(:sleep).with(60).exactly(30).times
 
-      expect {
+      expect do
         subject.wait_cpu_to_idle
-      }.to raise_exception(RuntimeError, "CPU was overloaded. Couldn't start emulator")
+      end.to raise_exception(RuntimeError, "CPU was overloaded. Couldn't start emulator")
     end
 
     it 'returns true after retry if load became better' do

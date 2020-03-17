@@ -3,7 +3,6 @@ require 'os'
 module Fastlane
   module Helper
     module CpuLoadHandler
-
       def self.print_cpu_load(load = cpu_load)
         UI.important("CPU load is: #{load}") if load
       end
@@ -35,7 +34,6 @@ module Fastlane
         end
         raise "CPU was overloaded. Couldn't start emulator"
       end
-
     end
   end
 end

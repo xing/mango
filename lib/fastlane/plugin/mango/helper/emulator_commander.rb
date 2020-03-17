@@ -2,9 +2,7 @@ require_relative 'docker_commander'
 
 module Fastlane
   module Helper
-
     class EmulatorCommander
-
       attr_accessor :container_name
 
       def initialize(container_name)
@@ -22,7 +20,7 @@ module Fastlane
         # it recovers after some time, so wait and retry
         retry_counter = retry_counter.to_i + 1
         if retry_counter <= 5
-          sleep 10*retry_counter
+          sleep 10 * retry_counter
           retry
         else
           raise e
@@ -55,7 +53,7 @@ module Fastlane
         # it recovers after some time, so wait and retry
         retry_counter = retry_counter.to_i + 1
         if retry_counter <= 5
-          sleep 10*retry_counter
+          sleep 10 * retry_counter
           retry
         else
           raise e

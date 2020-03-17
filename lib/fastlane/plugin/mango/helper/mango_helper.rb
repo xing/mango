@@ -72,6 +72,11 @@ module Fastlane
 
           unless wait_for_healthy_container
             UI.important('Container is unhealthy. Exiting..')
+            begin
+              Actions.sh("docker logs #{container_name} --tail 200")
+            rescue StandardError
+              # do nothing
+            end
             # We use code "2" as we need something than just standard error code 1, so we can differentiate the next step in CI
             exit 2
           end
@@ -151,11 +156,11 @@ module Fastlane
 
         additional_env = ''
         environment_variables.each do |variable|
-          additional_env = additional_env + " -e #{variable}"
+          additional_env += " -e #{variable}"
         end
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
         emulator_args = "#{emulator_args}#{additional_env}"
-        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,core_amount: core_amount)
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image, core_amount: core_amount)
       end
 
       def execute_pre_action
@@ -256,7 +261,6 @@ module Fastlane
           @container_name = @emulator_commander.container_name = @docker_commander.container_name = container
         end
       end
-
     end
   end
 end
