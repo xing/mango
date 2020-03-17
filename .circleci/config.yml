@@ -1,7 +1,10 @@
 version: 2
 jobs:
  build:
-   machine: true
+   machine:
+     ruby:
+       version:
+         2.5.1
    steps:
      - checkout
      - run:
