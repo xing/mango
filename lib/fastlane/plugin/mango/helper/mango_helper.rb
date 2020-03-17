@@ -109,7 +109,7 @@ module Fastlane
       # assigns vnc port
       def assign_unique_vnc_port
         @no_vnc_port = 6080 + port_factor
-        @host_ip_address = `hostname -I | head -n1 | awk '{print $1;}'`.delete!("\n")
+        @host_ip_address = `hostname -i | head -n1 | awk '{print $1;}'`.delete!("\n")
         UI.success("Port: #{@no_vnc_port} was chosen for VNC")
         UI.success("Link to VNC: http://#{@host_ip_address}:#{@no_vnc_port}")
       end
