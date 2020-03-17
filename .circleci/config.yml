@@ -1,15 +1,14 @@
 version: 2
 jobs:
  build:
-   machine:
-     ruby:
-       version:
-         2.5.1
+   machine: true
    steps:
      - checkout
      - run:
           name: Set Ruby Version
-          command:  echo "ruby-2.5.1" > ~/.ruby-version
+          command: |
+            rvm install 2.5.1
+            echo . $(rvm 2.5.1 do rvm env --path) >> $BASH_ENV
      - run:
           name: Bundler install
           command: gem install bundler && bundle install && cd sample-android && bundle install
