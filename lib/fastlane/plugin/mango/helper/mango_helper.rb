@@ -74,6 +74,8 @@ module Fastlane
             UI.important('Container is unhealthy. Exiting..')
             begin
               Actions.sh("docker logs #{container_name} --tail 200")
+              @docker_commander.exec('cat /var/log/supervisor/docker-android.stderr.log')
+              @docker_commander.exec('cat /var/log/supervisor/supervisord.log')
             rescue StandardError
               # do nothing
             end
