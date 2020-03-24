@@ -1,5 +1,5 @@
 module Fastlane
   module Mango
-    VERSION = '1.3.10'.freeze
+    VERSION = '1.3.11'.freeze
   end
 end

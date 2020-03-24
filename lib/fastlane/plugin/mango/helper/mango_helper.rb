@@ -246,6 +246,8 @@ module Fastlane
         end
         UI.important("The Container failed to load after '#{timeout}' seconds timeout. Reason: '#{@container.json['State']['Status']}'")
         false
+      rescue StandardError
+        false
       end
 
       # Checks if port is already openZ
