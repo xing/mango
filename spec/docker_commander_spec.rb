@@ -90,39 +90,6 @@ describe Fastlane::Helper::DockerCommander do
     end
   end
 
-  describe '#handle_thin_pool_exception' do
-    let(:container_name) { 'abcdef123' }
-
-    it 'Raises when exception message is not related to thin pool' do
-      expect do
-        docker_commander.handle_thin_pool_exception do
-          raise FastlaneCore::Interface::FastlaneShellError, 'some message'
-        end
-      end.to raise_error(FastlaneCore::Interface::FastlaneShellError, 'some message')
-    end
-
-    it 'Retries the command when the message is related to thin pool and raise if it fails after retry' do
-      expect(Fastlane::Actions).to receive(:sh).twice.with('test')
-
-      expect do
-        docker_commander.handle_thin_pool_exception do
-          Fastlane::Actions.sh('test')
-          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
-        end
-      end.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
-    end
-
-    it 'Calls prune just once when the message is related to thin pool and raise if initial command fails' do
-      expect(docker_commander).to receive(:prune).once
-
-      expect do
-        docker_commander.handle_thin_pool_exception do
-          raise FastlaneCore::Interface::FastlaneShellError, 'Create more free space in thin pool or ...'
-        end
-      end.to raise_exception(FastlaneCore::Interface::FastlaneShellError)
-    end
-  end
-
   describe '#docker_exec' do
     context 'when container name is set' do
       let(:container_name) { 'abcdef123' }
