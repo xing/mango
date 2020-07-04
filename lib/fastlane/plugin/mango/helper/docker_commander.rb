@@ -17,6 +17,7 @@ module Fastlane
       end
 
       def start_container(emulator_args:, docker_image:, core_amount:)
+        retries ||= 0
         docker_name = if container_name
                         "--name #{container_name}"
                       else
@@ -33,6 +34,11 @@ module Fastlane
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
         Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{core_amount} #{emulator_args} #{docker_name} #{docker_image}").chomp
+      rescue StandardError => exception
+        if exception.message =~ /Create more free space in thin pool/ && (retries += 1) < 2
+          prune
+          retry
+        end
       end
 
       def delete_container
