@@ -91,6 +91,14 @@ module Fastlane
                                        optional: false,
                                        type: String),
 
+          FastlaneCore::ConfigItem.new(key: :docker_with_user,
+                                       env_name: 'DOCKER_WITH_USER',
+                                       description: 'Enables to run docker container with user defined in the caller side',
+                                       default_value: '',
+                                       is_string: true,
+                                       optional: false,
+                                       type: String),
+
           FastlaneCore::ConfigItem.new(key: :container_timeout,
                                        env_name: 'CONTAINER_TIMEOUT',
                                        description: 'Timeout (in seconds) to get the healthy docker container. 450 (7.5 minutes) by default',
