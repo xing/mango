@@ -55,16 +55,16 @@ describe Fastlane::Helper::DockerCommander do
       let(:container_name) { 'abcdef123' }
 
       it 'starts the container with a specified name' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d   --name abcdef123 test-image').and_return("abdef\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil)
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests  --privileged -t -d   --name abcdef123 test-image').and_return("abdef\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil, docker_with_user: nil)
         expect(container_id).to eql 'abdef'
       end
     end
     context 'when container name is nil' do
       let(:container_name) { nil }
       it 'starts the container without the name parameter' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d    test-image').and_return("abd\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil)
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests  --privileged -t -d    test-image').and_return("abd\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil, docker_with_user: nil)
         expect(container_id).to eql 'abd'
       end
     end
@@ -73,8 +73,8 @@ describe Fastlane::Helper::DockerCommander do
       let(:container_name) { '123' }
       let(:core_amount) { '8' }
       it 'starts the container with the limitation for cpu usage' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d --cpus=8  --name 123 test-image').and_return("abd\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: 8)
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests  --privileged -t -d --cpus=8  --name 123 test-image').and_return("abd\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: 8, docker_with_user: nil)
         expect(container_id).to eql 'abd'
       end
     end
@@ -83,8 +83,8 @@ describe Fastlane::Helper::DockerCommander do
       let(:container_name) { '123' }
       let(:core_amount) { nil }
       it 'starts the container without limitation' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests --privileged -t -d   --name 123 test-image').and_return("abd\n")
-        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil)
+        expect(Fastlane::Actions).to receive(:sh).with('docker run -v $PWD:/root/tests  --privileged -t -d   --name 123 test-image').and_return("abd\n")
+        container_id = docker_commander.start_container(emulator_args: nil, docker_image: 'test-image', core_amount: nil, docker_with_user: nil)
         expect(container_id).to eql 'abd'
       end
     end
