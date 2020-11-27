@@ -16,7 +16,7 @@ module Fastlane
         Actions.sh("docker pull #{docker_image_name}")
       end
 
-      def start_container(emulator_args:, docker_image:, core_amount:,docker_with_user:)
+      def start_container(emulator_args:, docker_image:, core_amount:, docker_with_user:)
         retries ||= 0
         docker_name = if container_name
                         "--name #{container_name}"
