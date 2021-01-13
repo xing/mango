@@ -4,23 +4,27 @@ module Fastlane
   module Actions
     class RunDockerizedTaskAction < Action
       def self.run(params)
-        UI.important('The mango plugin is working!')
-        workspace_dir = params[:workspace_dir]
-        ENV['DOCKER_CONFIG'] = "#{ENV['WORKSPACE']}/.docker"
-        mango_helper = Fastlane::Helper::MangoHelper.new(params)
-        mango_helper.setup_container
+        begin
+          UI.important('The mango plugin is working!')
+          workspace_dir = params[:workspace_dir]
+          ENV['DOCKER_CONFIG'] = "#{ENV['WORKSPACE']}/.docker"
+          mango_helper = Fastlane::Helper::MangoHelper.new(params)
+          mango_helper.setup_container
 
-        docker_commander = Helper::DockerCommander.new(mango_helper.container_name)
+          docker_commander = Helper::DockerCommander.new(mango_helper.container_name)
 
-        failure_buffer_timeout = 5
-        timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
+          failure_buffer_timeout = 5
+          timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
 
-        android_task = params[:android_task]
-        if android_task
-          UI.success('Starting Android Task.')
-          bundle_install = params[:bundle_install] ? '&& bundle install ' : ''
+          android_task = params[:android_task]
+          if android_task
+            UI.success('Starting Android Task.')
+            bundle_install = params[:bundle_install] ? '&& bundle install ' : ''
 
-          docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
+            docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
+          end
+        rescue StandardError => e
+          puts e
         end
       ensure
         begin
