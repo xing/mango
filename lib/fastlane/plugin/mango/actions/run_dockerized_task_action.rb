@@ -24,6 +24,9 @@ module Fastlane
         end
       rescue StandardError => e
         puts e
+        @docker_commander.exec("docker logs #{mango_helper.container_name} --tail 200")
+        @docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/docker-android.stderr.log")
+        @docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/supervisord.log")
       ensure
         begin
           post_actions = params[:post_actions]
