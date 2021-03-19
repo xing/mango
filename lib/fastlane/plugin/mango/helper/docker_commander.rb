@@ -52,9 +52,13 @@ module Fastlane
         # Do nothing if the network bridge is already gone
       end
 
-      def exec(command:)
+      def exec(command:, raise_when_fail: true)
         if container_name
-          Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
+          begin
+            Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
+          rescue => e
+            raise(e) if raise_when_fail
+          end  
         else
           raise('Cannot execute docker command because the container name is unknown')
         end
