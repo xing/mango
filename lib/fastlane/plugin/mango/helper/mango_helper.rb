@@ -210,7 +210,7 @@ module Fastlane
         all_containers = Docker::Container.all(all: true)
 
         all_containers.each do |container|
-          if container.info['Names'].first[1..-1] == container_name
+          if container.info['Names'].first[1..] == container_name
             @container = container
             return true
           end

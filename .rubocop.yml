@@ -1,5 +1,4 @@
 inherit_from: .rubocop_todo.yml
 
-# Do not change ruby version
 AllCops:
-  TargetRubyVersion: 2.5.1
+  TargetRubyVersion: 2.7.1
