@@ -7,8 +7,8 @@ jobs:
      - run:
           name: Set Ruby Version
           command: |
-            rvm install 2.5.1
-            echo . $(rvm 2.5.1 do rvm env --path) >> $BASH_ENV
+            rvm install 2.7.1
+            echo . $(rvm 2.7.1 do rvm env --path) >> $BASH_ENV
      - run:
           name: Bundler install
           command: gem install bundler && bundle install && cd sample-android && bundle install
