@@ -261,7 +261,6 @@ DEPENDENCIES
   rspec_junit_formatter
   rubocop
   simplecov
-  xcodeproj (= 1.19.0)
 
 BUNDLED WITH
    2.2.15
