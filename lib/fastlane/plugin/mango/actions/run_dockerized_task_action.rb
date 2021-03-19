@@ -23,9 +23,9 @@ module Fastlane
           docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
         end
       rescue StandardError => e
-        @docker_commander.exec("docker logs #{mango_helper.container_name} --tail 200")
-        @docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/docker-android.stderr.log")
-        @docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/supervisord.log")
+        docker_commander.exec("docker logs #{mango_helper.container_name} --tail 200")
+        docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/docker-android.stderr.log")
+        docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/supervisord.log")
         raise e
       ensure
         begin
