@@ -11,8 +11,8 @@ module Fastlane
 
       def pull_image(docker_image_name:)
         Actions.sh("docker pull #{docker_image_name}")
-      rescue StandardError => exception
-        prune if exception.message =~ /Create more free space in thin pool/
+      rescue StandardError => e
+        prune if e.message =~ /Create more free space in thin pool/
         Actions.sh("docker pull #{docker_image_name}")
       end
 
@@ -34,8 +34,8 @@ module Fastlane
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
         Actions.sh("docker run -v $PWD:/root/tests --privileged -t -d #{core_amount} #{emulator_args} #{docker_name} #{docker_image}").chomp
-      rescue StandardError => exception
-        if exception.message =~ /Create more free space in thin pool/ && (retries += 1) < 2
+      rescue StandardError => e
+        if e.message =~ /Create more free space in thin pool/ && (retries += 1) < 2
           prune
           retry
         end
@@ -56,9 +56,9 @@ module Fastlane
         if container_name
           begin
             Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
-          rescue => e
+          rescue StandardError => e
             raise(e) if raise_when_fail
-          end  
+          end
         else
           raise('Cannot execute docker command because the container name is unknown')
         end

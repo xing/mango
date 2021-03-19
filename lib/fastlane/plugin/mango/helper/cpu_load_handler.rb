@@ -25,6 +25,7 @@ module Fastlane
           30.times do
             load = cpu_load
             return true if load <= cpu_core_amount.to_i * 1.5
+
             print_cpu_load(load)
             UI.important('Waiting for available resources..')
             sleep 60

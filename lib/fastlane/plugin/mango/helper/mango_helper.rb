@@ -6,7 +6,8 @@ require_relative 'cpu_load_handler'
 module Fastlane
   module Helper
     class MangoHelper
-      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor, :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
+      attr_reader :container_name, :no_vnc_port, :device_name, :docker_image, :timeout, :port_factor,
+                  :maximal_run_time, :sleep_interval, :is_running_on_emulator, :environment_variables, :vnc_enabled, :core_amount
 
       def initialize(params)
         @container_name = params[:container_name]
@@ -162,7 +163,8 @@ module Fastlane
         end
         emulator_args = is_running_on_emulator ? "-p #{no_vnc_port}:6080 -e DEVICE='#{device_name}'" : ''
         emulator_args = "#{emulator_args}#{additional_env}"
-        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image, core_amount: core_amount)
+        @docker_commander.start_container(emulator_args: emulator_args, docker_image: docker_image,
+                                          core_amount: core_amount)
       end
 
       def execute_pre_action
@@ -204,6 +206,7 @@ module Fastlane
       # Checks if container is already available
       def container_available?
         return false unless container_name
+
         all_containers = Docker::Container.all(all: true)
 
         all_containers.each do |container|

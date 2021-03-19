@@ -24,13 +24,18 @@ module Fastlane
         end
       rescue StandardError => e
         docker_commander.exec("docker logs #{mango_helper.container_name} --tail 200", raise_when_fail: false)
-        docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/docker-android.stderr.log", raise_when_fail: false)
-        docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/supervisord.log", raise_when_fail: false)
+        docker_commander.exec(
+          "docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/docker-android.stderr.log", raise_when_fail: false
+        )
+        docker_commander.exec("docker exec -i #{mango_helper.container_name} cat /var/log/supervisor/supervisord.log",
+                              raise_when_fail: false)
         raise e
       ensure
         begin
           post_actions = params[:post_actions]
-          docker_commander&.exec(command: "cd #{workspace_dir} && #{post_actions}") if post_actions && !mango_helper.kvm_disabled?
+          if post_actions && !mango_helper.kvm_disabled?
+            docker_commander&.exec(command: "cd #{workspace_dir} && #{post_actions}")
+          end
 
           UI.important("Cleaning up #{params[:emulator_name]} container")
           docker_commander.delete_container if mango_helper&.instance_variable_get('@container')
