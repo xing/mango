@@ -98,7 +98,7 @@ describe Fastlane::Helper::DockerCommander do
       let(:container_name) { 'abcdef123' }
 
       it 'executes commands inside docker if container name is specified' do
-        expect(Fastlane::Actions).to receive(:sh).with('docker exec -i abcdef123 bash -l -c "do stuff"')
+        expect(Fastlane::Actions).to receive(:sh).with('docker exec abcdef123 bash -l -c "do stuff"')
         docker_commander.exec(command: 'do stuff')
       end
     end
