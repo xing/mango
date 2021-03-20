@@ -55,7 +55,7 @@ module Fastlane
       def exec(command:, raise_when_fail: true)
         if container_name
           begin
-            Actions.sh("docker exec -i #{container_name} bash -l -c \"#{command}\"")
+            Actions.sh("docker exec #{container_name} bash -l -c \"#{command}\"")
           rescue StandardError => e
             raise(e) if raise_when_fail
           end
