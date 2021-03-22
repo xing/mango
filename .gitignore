@@ -1,6 +1,6 @@
 *.gem
 
-## Documentation cache and generated files (test):
+## Documentation cache and generated files:
 /.yardoc/
 /_yardoc/
 /doc/
