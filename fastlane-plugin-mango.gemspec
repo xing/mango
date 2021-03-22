@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.author        = 'Serghei Moret, Daniel Hartwich'
   spec.email         = 'serghei.moret@xing.com, hartwich.daniel@gmail.com'
 
-  spec.summary       = 'This plugin Android tasks on docker images'
+  spec.summary       = 'This plugin orchtestrates Android tasks on docker images'
   spec.homepage      = 'https://github.com/xing/mango'
   spec.license       = 'MIT'
 
