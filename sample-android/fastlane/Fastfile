@@ -21,7 +21,7 @@ platform :android do
     run_dockerized_task(
       container_name: "emulator_#{options[:port_factor]}",
       port_factor: options[:port_factor],
-      docker_image: "joesss/mango-base:latest",
+      docker_image: 'joesss/mango-base:latest',
       android_task: './gradlew testDebug',
       post_actions: 'adb logcat -d > logcat.txt',
       bundle_install: true,
@@ -34,7 +34,7 @@ platform :android do
       environment_variables: options[:environment_variables] ? options[:environment_variables].split(' ') : ''
     )
   end
-  
+
   lane :unit_tests do
     run_dockerized_task(
       docker_image: 'joesss/mango-base:latest',
