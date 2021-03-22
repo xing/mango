@@ -47,19 +47,26 @@ desc "Run espresso tests on docker images"
    end
 ```
 
-or to this for unit tests or other gradle tasks:
+or to this for unit tests or other gradle tasks(some of the variables are optional):
 ```ruby
 desc "Run unit tests on docker images"
-  lane :Unit_Tests do
-     run_dockerized_task(
-       container_name: "unit_tests_container",
-       port_factor: options[:port_factor],
-       docker_image: "joesss/mango-base:latest",
-       is_running_on_emulator: false,
-       android_task: "./gradlew testDebug",
-       pull_latest_image: true         
-     )
-   end
+  lane :example do
+    run_dockerized_task(
+      container_name: "emulator_#{options[:port_factor]}",
+      port_factor: options[:port_factor],
+      docker_image: 'joesss/mango-base:latest',
+      android_task: './gradlew testDebug',
+      post_actions: 'adb logcat -d > logcat.txt',
+      bundle_install: true,
+      core_amount: '8',
+      workspace_dir: '/root/tests/espresso-tests',
+      docker_registry_login: "docker login -u='USER' -p='PASS' some.docker.com",
+      pull_latest_image: true,
+      pre_action: 'echo $GIT_BRANCH > /root/.branch',
+      vnc_enabled: false,
+      environment_variables: options[:environment_variables] ? options[:environment_variables].split(' ') : ''
+    )
+  end
 ```
 
 Now you can call this new lane by calling `bundle exec fastlane Espresso_Tests`.
