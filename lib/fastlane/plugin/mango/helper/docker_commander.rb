@@ -45,7 +45,7 @@ module Fastlane
         Actions.sh("docker rm -f #{container_name}") if container_name
       rescue StandardError
         sleep 5
-        UI.important("Was not able to delete the container after the first attempt, trying again")
+        UI.important('Was not able to delete the container after the first attempt, trying again')
         retry
       end
 
