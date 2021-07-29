@@ -32,7 +32,7 @@ jobs:
       run: bundle add code-scanning-rubocop --version 0.3.0 --skip-install
 
     - name: Install dependencies
-      run: bundle install
+      run: bundle update
 
     - name: Rubocop run
       run: |
