@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fastlane-plugin-mango (1.3.34)
+    fastlane-plugin-mango (1.3.35)
       docker-api
 
 GEM
