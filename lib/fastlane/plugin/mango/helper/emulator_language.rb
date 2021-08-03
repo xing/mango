@@ -14,7 +14,7 @@ module Fastlane
             Actions.sh("adb shell am broadcast -a com.android.intent.action.SET_LOCALE --es com.android.intent.extra.LOCALE \"#{lang}\" com.android.customlocale2")
           else
             # On API levels higher than 27 we need to use the appium settings app to set system settings like the locale
-            UI.importan('Using Appium Settings to set the device locale!')
+            UI.important('Using Appium Settings to set the device locale!')
             language = lang.split('_')[0]
             country = lang.split('_')[1]
             Actions.sh('adb install ../settings_apk/settings_apk-debug.apk')
