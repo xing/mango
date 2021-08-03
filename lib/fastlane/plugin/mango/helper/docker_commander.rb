@@ -68,6 +68,10 @@ module Fastlane
         end
       end
 
+      def cp(file:)
+        Actions.sh("docker cp #{file} #{container_name}:/root/tests/.")
+      end
+
       def prune
         Action.sh('docker system prune -f')
       end
