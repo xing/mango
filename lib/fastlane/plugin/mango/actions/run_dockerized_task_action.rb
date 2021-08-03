@@ -11,7 +11,7 @@ module Fastlane
         mango_helper.setup_container
 
         docker_commander = Helper::DockerCommander.new(mango_helper.container_name)
-        Helper::EmulatorLanguage.set(params[:emulator_language]) if params[:emulator_language]
+        Helper::EmulatorLanguage.set(params[:emulator_language], docker_commander) if params[:emulator_language]
 
         failure_buffer_timeout = 5
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
