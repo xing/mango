@@ -11,6 +11,7 @@ module Fastlane
         mango_helper.setup_container
 
         docker_commander = Helper::DockerCommander.new(mango_helper.container_name)
+        Helper::EmulatorLanguage.set(params[:emulator_language]) if params[:emulator_language]
 
         failure_buffer_timeout = 5
         timeout_command = "timeout #{params[:maximal_run_time] - failure_buffer_timeout}m"
@@ -202,6 +203,12 @@ module Fastlane
                                        description: 'A bool. True for vnc_enabled False for vnc_disabled',
                                        type: Boolean,
                                        default_value: true,
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :emulator_language,
+                                       env_name: 'EMULATOR_LANGUAGE',
+                                       description: 'A string that identify a device locale (e.g. de_DE)',
+                                       type: String,
                                        optional: true)
         ]
       end
