@@ -1,7 +1,7 @@
 module Fastlane
   module Helper
     module EmulatorLanguage
-      def self.set(lang)
+      def self.set(lang, docker_commander)
         UI.important("Running tests in #{lang}")
         current_locale = Actions.sh('adb shell getprop persist.sys.locale').strip&.gsub('-', '_')
 
@@ -17,9 +17,9 @@ module Fastlane
             UI.important('Using Appium Settings to set the device locale!')
             language = lang.split('_')[0]
             country = lang.split('_')[1]
-            Actions.sh('adb install ../settings_apk/settings_apk-debug.apk')
-            Actions.sh('adb shell pm grant io.appium.settings android.permission.CHANGE_CONFIGURATION')
-            Actions.sh("adb shell am broadcast -a io.appium.settings.locale -n io.appium.settings/.receivers.LocaleSettingReceiver --es lang #{language} --es country #{country}")
+            docker_commander.exec(command: 'adb install ../settings_apk/settings_apk-debug.apk')
+            docker_commander.exec(command: 'adb shell pm grant io.appium.settings android.permission.CHANGE_CONFIGURATION')
+            docker_commander.exec(command: "adb shell am broadcast -a io.appium.settings.locale -n io.appium.settings/.receivers.LocaleSettingReceiver --es lang #{language} --es country #{country}")
           end
         end
       end
