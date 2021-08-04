@@ -4,7 +4,7 @@
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-mango) [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/xing/mango/blob/master/LICENSE)
 [![Gem](https://img.shields.io/gem/v/fastlane-plugin-mango.svg?style=flat)](http://rubygems.org/gems/fastlane-plugin-mango)
 
-A fastlane plugin that runs Android tasks on a specified [Docker](https://www.docker.com/) image. Can be used for orchestrating android tasks on a CI syste.
+A fastlane plugin that runs Android tasks on a specified [Docker](https://www.docker.com/) image. Can be used for orchestrating android tasks on a CI system.
 
 <img src="assets/mango_logo.png" alt="Mango Logo" width="256px" height="256px"/>
 
