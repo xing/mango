@@ -33,8 +33,8 @@ module Fastlane
         # Action.sh returns all output that the command produced but we are only
         # interested in the last line, since it contains the id of the created container.
         UI.important("Attaching #{ENV['PWD']} to the docker container")
-        FileUtils.mkdir_p "/virtual/emulators/#{docker_name}"
-        Actions.sh("docker run -v $PWD:/root/tests -v /virtual/emulators/#{docker_name}:/root/android_emulator --privileged -t -d #{core_amount} #{emulator_args} #{docker_name} #{docker_image}").chomp
+        FileUtils.mkdir_p "/virtual/emulators/#{container_name}"
+        Actions.sh("docker run -v $PWD:/root/tests -v /virtual/emulators/#{container_name}:/root/android_emulator --privileged -t -d #{core_amount} #{emulator_args} #{docker_name} #{docker_image}").chomp
       rescue StandardError => e
         if e.message =~ /Create more free space in thin pool/ && (retries += 1) < 2
           prune
