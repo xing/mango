@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fastlane-plugin-mango (1.3.35)
+    fastlane-plugin-mango (1.4.0)
       docker-api
 
 GEM
@@ -270,4 +270,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   2.2.15
+   2.2.32
