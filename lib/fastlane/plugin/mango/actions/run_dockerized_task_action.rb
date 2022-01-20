@@ -21,7 +21,7 @@ module Fastlane
           UI.success('Starting Android Task.')
           bundle_install = params[:bundle_install] ? '&& bundle install ' : ''
 
-          docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task} || exit 1")
+          docker_commander.exec(command: "cd #{workspace_dir} #{bundle_install}&& #{timeout_command} #{android_task}")
         end
       rescue StandardError => e
         begin
